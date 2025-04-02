@@ -168,15 +168,3 @@ env.set_register('RBX', SymbolicValue(name="input"))
 env.sym_add_reg_reg('RAX', 'RBX')
 ```
 
-## Contributing
-
-Contributions are welcome! Some areas for improvement:
-
-1. Adding support for more x86-64 instructions
-2. Implementing symbolic memory indexing
-3. Integrating with an SMT solver for constraint solving
-4. Creating visualizations of execution paths
-
-## License
-
-[Insert your license information here]
