@@ -134,37 +134,3 @@ env.sym_add_reg_reg('RAX', 'RBX')
 cf = env.get_flag('CF')
 print(f"Carry flag: {cf}")
 ```
-
-## Advanced Features
-
-### Clone and Branch Execution
-
-The environment can be cloned to explore different execution paths:
-
-```python
-# Clone environment at a branch point
-env_true_branch = env.clone()
-env_false_branch = env.clone()
-
-# Set different constraints on each path
-env_true_branch.set_flag('ZF', 1)
-env_false_branch.set_flag('ZF', 0)
-
-# Continue execution on both paths
-```
-
-### Hybrid Symbolic/Concrete Execution
-
-The system supports mixing concrete and symbolic values:
-
-```python
-# Set concrete value
-env.set_register('RAX', 0x1234)
-
-# Set symbolic value
-env.set_register('RBX', SymbolicValue(name="input"))
-
-# Execute (will produce hybrid results)
-env.sym_add_reg_reg('RAX', 'RBX')
-```
-
