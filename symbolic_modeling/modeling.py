@@ -1,5 +1,6 @@
+import re
+
 class SymbolicValue:
-    """Represents a symbolic value during execution"""
 
     def __init__(self, value=None, symbolic=True, size=1, name=None):
         self.value = value  # Concrete value, if available
@@ -14,7 +15,6 @@ class SymbolicValue:
 
 
 class SymbolicEnvironment:
-    """Hybrid symbolic execution environment with both abstract and bit-level access"""
 
     def __init__(self):
         # Underlying array representation for bit-level operations
@@ -621,37 +621,12 @@ def execute_instruction(env, instruction):
 
     # For testing purposes, use predefined operands
     if mnemonic == 'mov':
-        # Can use either bit-level or abstract approach
         env.sym_copy_reg_reg('RAX', 'RBX')  # Bit-level approach
         # Or: env.set_register('RAX', env.get_register('RBX'))  # Abstract approach
 
     elif mnemonic == 'add':
-        # Can use either approach
         env.sym_add_reg_reg('RAX', 'RBX')  # Bit-level approach
         # Or: env.abstract_add('RAX', 'RBX')  # Abstract approach
-
-    elif mnemonic == 'sub':
-        # Set concrete values for testing
-        env.set_register('RAX', 10)
-        env.set_register('RBX', 5)
-        # For now, just update RAX to a symbolic value
-        env.set_register('RAX', SymbolicValue(name="RAX-RBX", size=8))
-        # Update CF flag (would be set in real implementation)
-        env.set_flag('CF', SymbolicValue(name="CF(RAX-RBX)", size=1))
-
-    elif mnemonic == 'test':
-        rax_val = env.get_register('RAX')
-        if not rax_val.symbolic and rax_val.value == 0:
-            # If RAX is concrete and 0, set ZF to 1
-            env.set_flag('ZF', 1)
-        else:
-            # Otherwise, ZF is symbolic
-            env.set_flag('ZF', SymbolicValue(name="ZF(TEST)", size=1))
-
-    elif mnemonic == 'cmp':
-        # Set flags for comparison
-        # For testing, just set CF to 0
-        env.set_flag('CF', 0)
 
     return env
 
@@ -691,25 +666,49 @@ def SymMod(trace, template):
     return env
 
 
-def main():
-    """Main function to test hybrid symbolic modeling"""
-    # Test trace - simplified for demonstration
-    test_trace = [
-        {'name': 'sub', 'address': '401000'},
-        {'name': 'mov', 'address': '401004'},
-        {'name': 'add', 'address': '401008'},
-        {'name': 'cmp', 'address': '40100C'}
-    ]
-
-    # Test template
-    template = """
-    a1.X1;a2.X2
-    a1: Mem(i) != 0
-    a2: FLAGS[0] == 0
+def parse_behavior_file(content):
     """
+    A simple parser that extracts instructions from the behavior file.
+    It searches for patterns like: mnemonic(address)
+    and returns a list of instruction dictionaries.
+    """
+    pattern = r'(\w+)\((0x[0-9A-Fa-f]+|\d+)\)'
+    instructions = []
+    for match in re.finditer(pattern, content):
+        name, address = match.groups()
+        # Skip labels or non-instruction symbols (e.g. "B")
+        if name.upper() == "B":
+            continue
+        instructions.append({'name': name, 'address': address})
+    return instructions
 
-    # Run symbolic modeling
-    print("Running SymMod with test trace...")
+
+def main():
+    """Main function to test hybrid symbolic modeling using files"""
+
+    # Read the behavior (trace) file
+    try:
+        with open('behavior_algebra_20250326_194917.txt', 'r') as f:
+            behavior_content = f.read()
+    except IOError as e:
+        print("Error reading behavior file:", e)
+        return
+
+    # Read the template file
+    try:
+        with open('template.txt', 'r') as f:
+            template = f.read()
+    except IOError as e:
+        print("Error reading template file:", e)
+        return
+
+    # Parse the behavior file into a trace (list of instruction dictionaries)
+    test_trace = parse_behavior_file(behavior_content)
+    if not test_trace:
+        print("No valid instructions found in behavior file.")
+        return
+
+    print("Running SymMod with instructions from file...")
     final_env = SymMod(test_trace, template)
 
     if final_env:
