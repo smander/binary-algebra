@@ -382,37 +382,6 @@ def generate_output_filename(prefix="behavior_algebra", extension="txt"):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{prefix}_{timestamp}.{extension}"
 
-
-def create_example_binary(source_file="example.c", binary_file="example"):
-    """Create a simple example binary for testing."""
-    with open(source_file, "w") as f:
-        f.write("""
-        #include <stdio.h>
-
-        int factorial(int n) {
-            if (n <= 1) return 1;
-            return n * factorial(n-1);
-        }
-
-        int main() {
-            int n = 5;
-            printf("Factorial of %d is %d\\n", n, factorial(n));
-            return 0;
-        }
-        """)
-
-    try:
-        subprocess.run(["gcc", "-o", binary_file, source_file], check=True)
-        print(f"Created example binary: {binary_file}")
-        return binary_file
-    except subprocess.CalledProcessError:
-        print("Failed to compile example binary. Make sure gcc is installed.")
-        return None
-    except FileNotFoundError:
-        print("gcc not found. Please install a C compiler.")
-        return None
-
-
 def process_binary(binary_path, output_path=None, output_format="txt", use_objdump=False):
     """
     Process a binary file to generate behavior algebra and optionally export CFG in JSON.
@@ -427,13 +396,6 @@ def process_binary(binary_path, output_path=None, output_format="txt", use_objdu
     Returns:
         Path to the output file in the requested format
     """
-    # Create example binary if requested
-    if binary_path.lower() == "example":
-        created_binary = create_example_binary()
-        if created_binary:
-            binary_path = created_binary
-        else:
-            return None
 
     # Create export directory
     export_dir = "export"
