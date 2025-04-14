@@ -35,10 +35,10 @@ behavior-algebra /path/to/binary --objdump
 behavior-algebra /path/to/binary --output /path/to/output.txt
 
 # Export CFG in JSON format
-behavior-algebra /path/to/binary --format cfg-json --output /path/to/cfg.json
+behavior-algebra /path/to/binary --format json --output /path/to/cfg.json
 
 # Highlight specific addresses in CFG
-behavior-algebra /path/to/binary --format cfg-json --highlight "401000,401050"
+behavior-algebra /path/to/binary --format json --highlight "401000,401050"
 ```
 
 ## Python API Usage
