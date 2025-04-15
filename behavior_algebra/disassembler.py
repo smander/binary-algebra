@@ -84,6 +84,99 @@ def parse_instructions(input_data):
     return instructions
 
 
+def is_dynamic_operand(operand):
+    """
+    Determine if an operand is dynamic (depends on runtime values).
+
+    Args:
+        operand: The operand string to check
+
+    Returns:
+        True if the operand is dynamic, False if it's a static address
+    """
+    # Direct addresses are not dynamic
+    if operand.startswith("0x") or all(c in "0123456789abcdef" for c in operand.split()[0]):
+        return False
+
+    # If it contains "ptr" and no brackets, it might be a direct symbol
+    # But if it has both "ptr" and brackets, let the bracket logic handle it
+    if "ptr" in operand and "[" not in operand:
+        return True
+
+    # Register list for detecting register references
+    register_names = [
+        "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "rbp", "rsp",
+        "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",
+        "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp",
+        "ax", "bx", "cx", "dx", "si", "di", "bp", "sp",
+        "al", "bl", "cl", "dl", "ah", "bh", "ch", "dh",
+        "rip", "eip", "ip",
+        # 32-bit extended registers
+        "r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d",
+        # 16-bit extended registers
+        "r8w", "r9w", "r10w", "r11w", "r12w", "r13w", "r14w", "r15w",
+        # 8-bit extended registers
+        "r8b", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b",
+        # Segment registers
+        "cs", "ds", "es", "fs", "gs", "ss"
+    ]
+
+    # If it contains brackets (memory reference) we need to check inside
+    if "[" in operand and "]" in operand:
+        # Extract what's inside the brackets
+        inside_brackets = operand[operand.find("[") + 1:operand.find("]")]
+
+        # Check for register references
+        for reg in register_names:
+            if reg in inside_brackets:
+                return True
+
+        # Check for operators that would make it dynamic
+        operators = ["+", "-", "*", "×", "·"]
+        has_operator = False
+
+        for op in operators:
+            if op in inside_brackets:
+                has_operator = True
+                break
+
+        if has_operator:
+            # If it has an operator, check if both sides are numeric constants
+            # Example: [0x401000+0x10] - this is still static
+            parts = None
+            for op in operators:
+                if op in inside_brackets:
+                    parts = inside_brackets.split(op, 1)
+                    break
+
+            if parts and len(parts) == 2:
+                left = parts[0].strip()
+                right = parts[1].strip()
+
+                left_numeric = left.startswith("0x") or left.isdigit()
+                right_numeric = right.startswith("0x") or right.isdigit()
+
+                # If both sides are numeric, it's a static reference
+                if left_numeric and right_numeric:
+                    return False
+
+            # Otherwise, it's dynamic (e.g. [base+index])
+            return True
+
+        # If no operators and no registers, it might be a static memory reference
+        # Check if it's a pure number or hex address
+        if inside_brackets.startswith("0x") or inside_brackets.isdigit():
+            return False
+
+        # If we get here, it's probably a symbol or other construct
+        # Default to treating it as dynamic
+        return True
+
+    # Labels, function names and other symbols without ptr or brackets
+    # are typically static references (not dynamic)
+    return False
+
+
 def generate_behavior_algebra(input_data, output_path):
     instructions = parse_instructions(input_data)
 
@@ -94,9 +187,8 @@ def generate_behavior_algebra(input_data, output_path):
         if mnem.startswith("j") or mnem == "call":
             # Extract target address from operands
             operands = instr["operands"]
-            if operands:
-                # Handle different formats of operand representation
-                # This is a simplified approach - might need to be adjusted based on actual output format
+            if operands and not is_dynamic_operand(operands):
+                # Only add direct addresses, not dynamic references
                 try:
                     # Try to extract a hex address from the operands
                     if "0x" in operands:
@@ -116,6 +208,12 @@ def generate_behavior_algebra(input_data, output_path):
 
     # Ensure directory exists
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+
+    # Define a special placeholder for dynamic/unknown behaviors
+    DYNAMIC_BEHAVIOR = "B(DYNAMIC)"
+
+    # Add a list to collect all the dynamic behaviors we need to define
+    dynamic_behaviors = set()
 
     with open(output_path, "w") as f:
         i = 0
@@ -144,51 +242,95 @@ def generate_behavior_algebra(input_data, output_path):
             # Process call instructions
             elif mnem == "call":
                 destination = current["operands"]
-                # Get clean destination address
-                clean_dest = destination
-                if "0x" in destination:
-                    parts = destination.split("0x", 1)
-                    clean_dest = "0x" + parts[1].split()[0].rstrip(",")
 
-                # Next instruction after call
-                next_idx = i + 1
-                if next_idx < len(instructions):
-                    addr_next = instructions[next_idx]["address"]
-                    f.write(f"B({addr}) = B({clean_dest}); B({addr_next}),\n")
+                # Check if this is a dynamic/indirect call
+                is_dynamic = is_dynamic_operand(destination)
+
+                if is_dynamic:
+                    # For dynamic calls, use our special placeholder
+                    # Record the dynamic call for later definition
+                    dynamic_behaviors.add(f"call({addr}):{destination}")
+
+                    # Next instruction after call
+                    next_idx = i + 1
+                    if next_idx < len(instructions):
+                        addr_next = instructions[next_idx]["address"]
+                        f.write(f"B({addr}) = {DYNAMIC_BEHAVIOR}; B({addr_next}),\n")
+                    else:
+                        # If this is the last instruction, just show the call without continuation
+                        f.write(f"B({addr}) = {DYNAMIC_BEHAVIOR},\n")
                 else:
-                    # If this is the last instruction, just show the call without continuation
-                    f.write(f"B({addr}) = B({clean_dest}),\n")
+                    # Regular direct call with static address
+                    # Get clean destination address
+                    clean_dest = destination
+                    if "0x" in destination:
+                        parts = destination.split("0x", 1)
+                        clean_dest = "0x" + parts[1].split()[0].rstrip(",")
+
+                    # Next instruction after call
+                    next_idx = i + 1
+                    if next_idx < len(instructions):
+                        addr_next = instructions[next_idx]["address"]
+                        f.write(f"B({addr}) = B({clean_dest}); B({addr_next}),\n")
+                    else:
+                        # If this is the last instruction, just show the call without continuation
+                        f.write(f"B({addr}) = B({clean_dest}),\n")
                 i += 1
 
             # Process jump instructions (mnemonics starting with 'j')
             elif mnem.startswith("j"):
                 destination = current["operands"]
-                # Clean destination address
-                clean_dest = destination
-                if "0x" in destination:
-                    parts = destination.split("0x", 1)
-                    clean_dest = "0x" + parts[1].split()[0].rstrip(",")
 
-                # Next instruction (fallthrough) address
-                next_idx = i + 1
-                if next_idx < len(instructions):
-                    addr_next = instructions[next_idx]["address"]
-                    # Check if this is a conditional or unconditional jump
-                    if mnem == "jmp":
-                        # Unconditional jump - no fallthrough
-                        f.write(f"B({addr}) = B({clean_dest}),\n")
+                # Check if this is a dynamic/indirect jump
+                is_dynamic = is_dynamic_operand(destination)
+
+                if is_dynamic:
+                    # For dynamic jumps, use our special placeholder
+                    # Record the dynamic jump for later definition
+                    dynamic_behaviors.add(f"{mnem}({addr}):{destination}")
+
+                    # For conditional jumps, include fallthrough
+                    if mnem != "jmp":
+                        next_idx = i + 1
+                        if next_idx < len(instructions):
+                            addr_next = instructions[next_idx]["address"]
+                            f.write(
+                                f"B({addr}) = {mnem}({addr}).{DYNAMIC_BEHAVIOR} + !{mnem}({addr}).B({addr_next}),\n")
+                        else:
+                            fallthrough_addr = f"{int(addr, 16) + 1:x}"
+                            f.write(
+                                f"B({addr}) = {mnem}({addr}).{DYNAMIC_BEHAVIOR} + !{mnem}({addr}).B({fallthrough_addr}),\n")
                     else:
-                        # Conditional jump - has fallthrough
-                        f.write(f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({addr_next}),\n")
+                        # Unconditional jumps have no fallthrough
+                        f.write(f"B({addr}) = {DYNAMIC_BEHAVIOR},\n")
                 else:
-                    # If this is the last instruction
-                    if mnem == "jmp":
-                        f.write(f"B({addr}) = B({clean_dest}),\n")
+                    # Regular direct jump with static address
+                    # Clean destination address
+                    clean_dest = destination
+                    if "0x" in destination:
+                        parts = destination.split("0x", 1)
+                        clean_dest = "0x" + parts[1].split()[0].rstrip(",")
+
+                    # Next instruction (fallthrough) address
+                    next_idx = i + 1
+                    if next_idx < len(instructions):
+                        addr_next = instructions[next_idx]["address"]
+                        # Check if this is a conditional or unconditional jump
+                        if mnem == "jmp":
+                            # Unconditional jump - no fallthrough
+                            f.write(f"B({addr}) = B({clean_dest}),\n")
+                        else:
+                            # Conditional jump - has fallthrough
+                            f.write(f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({addr_next}),\n")
                     else:
-                        # Use addr+1 as fallthrough for conditional jumps
-                        fallthrough_addr = f"{int(addr, 16) + 1:x}"
-                        f.write(
-                            f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({fallthrough_addr}),\n")
+                        # If this is the last instruction
+                        if mnem == "jmp":
+                            f.write(f"B({addr}) = B({clean_dest}),\n")
+                        else:
+                            # Use addr+1 as fallthrough for conditional jumps
+                            fallthrough_addr = f"{int(addr, 16) + 1:x}"
+                            f.write(
+                                f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({fallthrough_addr}),\n")
                 i += 1
 
             # Non-control flow instructions - collect sequences until a control flow instruction
@@ -229,6 +371,16 @@ def generate_behavior_algebra(input_data, output_path):
                         # Could add a special termination behavior or use addr+1
                         fallthrough_addr = f"{int(last_instr['address'], 16) + 1:x}"
                         f.write(f"B({start_addr}) = {'.'.join(seq)}.B({fallthrough_addr}),\n")
+
+        # Add the definition for the dynamic behavior placeholder at the end
+        f.write(f"\n# Dynamic (indirect) control flows:\n")
+        f.write(f"{DYNAMIC_BEHAVIOR} = nop(DYNAMIC),\n")
+
+        # Optionally, add detailed comments about each observed dynamic call/jump
+        if dynamic_behaviors:
+            f.write(f"\n# Observed dynamic control transfers:\n")
+            for db in sorted(dynamic_behaviors):
+                f.write(f"# {db}\n")
 
 def disassemble_binary(binary_path, use_objdump=False):
     """
