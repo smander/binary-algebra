@@ -87,69 +87,148 @@ def parse_instructions(input_data):
 def generate_behavior_algebra(input_data, output_path):
     instructions = parse_instructions(input_data)
 
+    # Create a set of all jump target addresses to identify behavior entry points
+    jump_targets = set()
+    for instr in instructions:
+        mnem = instr["mnemonic"]
+        if mnem.startswith("j") or mnem == "call":
+            # Extract target address from operands
+            operands = instr["operands"]
+            if operands:
+                # Handle different formats of operand representation
+                # This is a simplified approach - might need to be adjusted based on actual output format
+                try:
+                    # Try to extract a hex address from the operands
+                    if "0x" in operands:
+                        parts = operands.split("0x", 1)
+                        addr_part = "0x" + parts[1].split()[0].rstrip(",")
+                        # Convert to standardized hex format without 0x prefix
+                        addr_int = int(addr_part, 16)
+                        jump_targets.add(f"{addr_int:x}")
+                    else:
+                        # Direct address without 0x prefix
+                        possible_addr = operands.split()[0].rstrip(",")
+                        if all(c in "0123456789abcdef" for c in possible_addr):
+                            jump_targets.add(possible_addr)
+                except (ValueError, IndexError):
+                    # If we can't parse the address, just continue
+                    pass
+
     # Ensure directory exists
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
 
     with open(output_path, "w") as f:
         i = 0
+        # Keep track of processed addresses to avoid infinite loops
+        processed_addresses = set()
+
         while i < len(instructions):
             current = instructions[i]
             addr = current["address"]
             mnem = current["mnemonic"]
 
-            # Skip return instructions
-            if mnem == "return":
+            # Skip if we've already processed this instruction (prevents infinite loops)
+            if addr in processed_addresses:
                 i += 1
                 continue
 
-            # Calculate next valid instruction (skip returns)
-            next_idx = i + 1
-            while next_idx < len(instructions) and instructions[next_idx]["mnemonic"] == "return":
-                next_idx += 1
+            # Add this address to the processed set
+            processed_addresses.add(addr)
 
-            next_instr = instructions[next_idx] if next_idx < len(instructions) else None
-            addr_next = next_instr["address"] if next_instr else None
+            # Handle return instructions - they terminate the current behavior
+            if mnem == "ret" or mnem == "return":
+                f.write(f"B({addr}) = ret({addr}),\n")
+                i += 1
+                continue
 
             # Process call instructions
-            if mnem == "call":
+            elif mnem == "call":
                 destination = current["operands"]
-                f.write(f"B({addr}) = B({destination}); B({addr_next}),\n")
+                # Get clean destination address
+                clean_dest = destination
+                if "0x" in destination:
+                    parts = destination.split("0x", 1)
+                    clean_dest = "0x" + parts[1].split()[0].rstrip(",")
+
+                # Next instruction after call
+                next_idx = i + 1
+                if next_idx < len(instructions):
+                    addr_next = instructions[next_idx]["address"]
+                    f.write(f"B({addr}) = B({clean_dest}); B({addr_next}),\n")
+                else:
+                    # If this is the last instruction, just show the call without continuation
+                    f.write(f"B({addr}) = B({clean_dest}),\n")
                 i += 1
 
             # Process jump instructions (mnemonics starting with 'j')
             elif mnem.startswith("j"):
                 destination = current["operands"]
-                if next_instr:
-                    f.write(f"B({addr}) = {mnem}({addr}). B({destination}) + !{mnem}({addr}).B({addr_next}),\n")
+                # Clean destination address
+                clean_dest = destination
+                if "0x" in destination:
+                    parts = destination.split("0x", 1)
+                    clean_dest = "0x" + parts[1].split()[0].rstrip(",")
+
+                # Next instruction (fallthrough) address
+                next_idx = i + 1
+                if next_idx < len(instructions):
+                    addr_next = instructions[next_idx]["address"]
+                    # Check if this is a conditional or unconditional jump
+                    if mnem == "jmp":
+                        # Unconditional jump - no fallthrough
+                        f.write(f"B({addr}) = B({clean_dest}),\n")
+                    else:
+                        # Conditional jump - has fallthrough
+                        f.write(f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({addr_next}),\n")
                 else:
-                    # If this is the last instruction, use addr+1 as fallthrough
-                    fallthrough_addr = f"{int(addr, 16) + 1:x}"
-                    f.write(f"B({addr}) = {mnem}({addr}). B({destination}) + !{mnem}({addr}).B({fallthrough_addr}),\n")
+                    # If this is the last instruction
+                    if mnem == "jmp":
+                        f.write(f"B({addr}) = B({clean_dest}),\n")
+                    else:
+                        # Use addr+1 as fallthrough for conditional jumps
+                        fallthrough_addr = f"{int(addr, 16) + 1:x}"
+                        f.write(
+                            f"B({addr}) = {mnem}({addr}).B({clean_dest}) + !{mnem}({addr}).B({fallthrough_addr}),\n")
                 i += 1
 
-            # Non-control flow instructions
+            # Non-control flow instructions - collect sequences until a control flow instruction
             else:
                 start_addr = addr
                 seq = []
+
+                # Track the initial value of i to prevent infinite loops
+                initial_i = i
+
+                # Collect instructions until we hit a control flow instruction or a jump target
                 while i < len(instructions) and not (
                         instructions[i]["mnemonic"] == "call" or
                         instructions[i]["mnemonic"].startswith("j") or
-                        instructions[i]["mnemonic"] == "return"
+                        instructions[i]["mnemonic"] == "ret" or
+                        instructions[i]["mnemonic"] == "return" or
+                        (i + 1 < len(instructions) and instructions[i + 1]["address"] in jump_targets)
                 ):
                     seq.append(f"{instructions[i]['mnemonic']}({instructions[i]['address']})")
                     i += 1
 
+                # If we didn't advance, force an increment to avoid infinite loop
+                if i == initial_i:
+                    # Safety increment to prevent infinite loop
+                    i += 1
+                    # Skip writing this behavior if we couldn't collect any instructions
+                    continue
+
                 if seq:
-                    # Next CF instruction
+                    # If we've reached the end of the sequence
                     if i < len(instructions):
                         next_cf_addr = instructions[i]["address"]
                         f.write(f"B({start_addr}) = {'.'.join(seq)}.B({next_cf_addr}),\n")
                     else:
                         # Last sequence, no following instruction
                         last_instr = instructions[i - 1]
+                        # For the last instruction, we don't know what comes next
+                        # Could add a special termination behavior or use addr+1
                         fallthrough_addr = f"{int(last_instr['address'], 16) + 1:x}"
                         f.write(f"B({start_addr}) = {'.'.join(seq)}.B({fallthrough_addr}),\n")
-
 
 def disassemble_binary(binary_path, use_objdump=False):
     """
