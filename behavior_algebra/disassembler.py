@@ -625,55 +625,61 @@ def ensure_objdump_installed():
 def process_binary(binary_path, output_path=None, output_format="txt", use_objdump=False):
     """
     Process a binary file to generate behavior algebra and optionally export CFG in JSON.
-    Always generates behavior algebra, and additionally generates the requested format if different.
+    Always generates behavior algebra (angr), and additionally generates objdump output if requested.
 
     Args:
         binary_path: Path to the binary file
         output_path: Path to save the output file (optional)
         output_format: Format of the output (txt or json)
-        use_objdump: If True, use objdump instead of angr for disassembly
+        use_objdump: If True, use objdump in addition to angr for disassembly
 
     Returns:
-        Path to the output file in the requested format
+        Dict of output file paths (behavior_algebra, objdump, cfg_json)
     """
+    results = {}
     try:
+        export_dir = "export"
+        os.makedirs(export_dir, exist_ok=True)
+
+        # Generate behavior algebra using angr (if available)
+        angr_disassembly = None
+        behavior_algebra_path = None
+        if check_dependencies(quiet=True):
+            angr_disassembly = disassemble_with_angr(binary_path)
+            behavior_algebra_path = os.path.join(export_dir, generate_output_filename(prefix="behavior_algebra", extension="txt"))
+            generate_behavior_algebra(angr_disassembly, behavior_algebra_path)
+            print(f"Behavior algebra written to: {behavior_algebra_path}")
+            results['behavior_algebra'] = behavior_algebra_path
+        else:
+            print("angr not available, skipping behavior algebra and CFG export.")
+
+        # If objdump requested, also export raw objdump disassembly
         if use_objdump:
             ensure_objdump_installed()
             if not is_objdump_available():
                 print("ERROR: objdump is not available and could not be installed.")
-                return None
-            result = disassemble_with_objdump(binary_path)
-            # Export raw text as-is
-            if output_path:
-                with open(output_path, "w") as f:
-                    f.write(result)
-                print(f"Objdump disassembly exported as raw text to {output_path}")
-                return output_path
             else:
-                return result
-        else:
-            # Use angr for disassembly and JSON export
-            if output_format == "json":
-                cfg_analysis = get_angr_cfg(binary_path)
-                cfg_path = output_path if output_path else os.path.join(os.path.dirname(binary_path), generate_output_filename(prefix="cfg", extension="json"))
-                export_cfg_json(cfg_analysis, cfg_path)
-                print(f"angr CFG exported as JSON to {cfg_path}")
-                return cfg_path
-            else:
-                # Default: export behavior algebra as text
-                assembly = disassemble_with_angr(binary_path)
-                if output_path:
-                    with open(output_path, "w") as f:
-                        f.write(assembly)
-                    print(f"angr disassembly exported as text to {output_path}")
-                    return output_path
-                else:
-                    return assembly
+                objdump_disassembly = disassemble_with_objdump(binary_path)
+                objdump_path = os.path.join(export_dir, generate_output_filename(prefix="objdump", extension="txt"))
+                with open(objdump_path, "w") as f:
+                    f.write(objdump_disassembly)
+                print(f"Objdump disassembly exported as raw text to {objdump_path}")
+                results['objdump'] = objdump_path
+
+        # If the requested format is json, generate that too (angr only)
+        if output_format.lower() == "json" and angr_disassembly is not None:
+            cfg_analysis = get_angr_cfg(binary_path)
+            cfg_path = output_path if output_path else os.path.join(export_dir, generate_output_filename(prefix="cfg", extension="json"))
+            export_cfg_json(cfg_analysis, cfg_path)
+            print(f"angr CFG exported as JSON to {cfg_path}")
+            results['cfg_json'] = cfg_path
+
+        return results
     except Exception as e:
         print(f"ERROR: {str(e)}")
         import traceback
         traceback.print_exc()
-        return None
+        return results
 
 
 def print_help():
@@ -713,7 +719,7 @@ def main():
     parser.add_argument("--output", "-o", help="Output path for the result file")
     parser.add_argument("--format", "-f", choices=["txt", "json"], default="txt",
                         help="Output format (txt=behavior algebra, json=CFG in JSON)")
-    parser.add_argument("--objdump", action="store_true", help="Use objdump instead of angr for disassembly")
+    parser.add_argument("--objdump", action="store_true", help="Use objdump in addition to angr for disassembly")
     parser.add_argument("--highlight", help="Comma-separated list of addresses to highlight in CFG (hex format)")
     parser.add_argument("--help-detailed", action="store_true", help="Show detailed help information")
 
@@ -733,35 +739,23 @@ def main():
     try:
         # Check if format is CFG-related and objdump was specified
         if args.format == "json" and args.objdump:
-            print("WARNING: CFG export requires angr. Ignoring --objdump flag.")
+            print("WARNING: CFG export requires angr. Ignoring --objdump flag for JSON export.")
 
         # Process highlight addresses if provided
         highlight_addrs = None
         if args.highlight:
             highlight_addrs = [int(addr, 16) for addr in args.highlight.split(",")]
 
-        # Process the binary - always generates behavior algebra
-        if args.format == "json":
-            # First generate behavior algebra
-            disassembly = disassemble_binary(args.binary_path, use_objdump=args.objdump)
-            behavior_path = args.output.replace(".json", ".txt") if args.output else os.path.join("export",
-                                                                                                  generate_output_filename())
-            generate_behavior_algebra(disassembly, behavior_path)
-            print(f"Behavior algebra written to: {behavior_path}")
-
-            # Then generate CFG JSON
-            output_file = export_cfg_json(get_angr_cfg(args.binary_path), args.output or None,
-                                          highlight_addrs=highlight_addrs)
-        else:
-            # Process for txt format (behavior algebra)
-            output_file = process_binary(args.binary_path, args.output, args.format, args.objdump)
-
-        if output_file:
-            print(f"SUCCESS: Output saved to {output_file}")
-            return 0
-        else:
-            print("ERROR: Failed to process binary")
-            return 1
+        # Always generate behavior algebra (angr), and optionally objdump output
+        results = process_binary(
+            args.binary_path,
+            output_path=args.output,
+            output_format=args.format,
+            use_objdump=args.objdump
+        )
+        for key, path in results.items():
+            print(f"Output [{key}]: {path}")
+        return 0
     except Exception as e:
         print(f"Error processing binary: {e}", file=sys.stderr)
         import traceback
