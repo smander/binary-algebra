@@ -382,6 +382,7 @@ def generate_behavior_algebra(input_data, output_path):
             for db in sorted(dynamic_behaviors):
                 f.write(f"# {db}\n")
 
+
 def disassemble_binary(binary_path, use_objdump=False):
     """
     Disassemble a binary file using angr or objdump.
@@ -613,6 +614,14 @@ def generate_output_filename(prefix="behavior_algebra", extension="txt"):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{prefix}_{timestamp}.{extension}"
 
+def ensure_objdump_installed():
+    """Install objdump (binutils) if not available and running in Colab."""
+    IN_COLAB = 'google.colab' in sys.modules
+    if IN_COLAB and not is_objdump_available():
+        print("Installing binutils (objdump) in Colab...")
+        subprocess.check_call(['apt-get', 'update'])
+        subprocess.check_call(['apt-get', 'install', '-y', 'binutils'])
+
 def process_binary(binary_path, output_path=None, output_format="txt", use_objdump=False):
     """
     Process a binary file to generate behavior algebra and optionally export CFG in JSON.
@@ -627,35 +636,39 @@ def process_binary(binary_path, output_path=None, output_format="txt", use_objdu
     Returns:
         Path to the output file in the requested format
     """
-
-    # Create export directory
-    export_dir = "export"
-    os.makedirs(export_dir, exist_ok=True)
-
     try:
-        # Get the disassembly
-        assembly_text = disassemble_binary(binary_path, use_objdump=use_objdump)
-
-        # Always generate behavior algebra
-        behavior_algebra_path = os.path.join(export_dir,
-                                             generate_output_filename(prefix="behavior_algebra", extension="txt"))
-        generate_behavior_algebra(assembly_text, behavior_algebra_path)
-        print(f"Behavior algebra written to: {behavior_algebra_path}")
-
-        # If the requested format is json, generate that too
-        if output_format.lower() == "json":
-            # For CFG export, we always need angr
-            cfg_analysis = get_angr_cfg(binary_path)
-
-            # Use specified output path or generate one
-            cfg_path = output_path if output_path else os.path.join(export_dir, generate_output_filename(prefix="cfg",
-                                                                                                         extension="json"))
-            result = export_cfg_json(cfg_analysis, cfg_path)
-            return result
+        if use_objdump:
+            ensure_objdump_installed()
+            if not is_objdump_available():
+                print("ERROR: objdump is not available and could not be installed.")
+                return None
+            result = disassemble_with_objdump(binary_path)
+            # Export raw text as-is
+            if output_path:
+                with open(output_path, "w") as f:
+                    f.write(result)
+                print(f"Objdump disassembly exported as raw text to {output_path}")
+                return output_path
+            else:
+                return result
         else:
-            # If txt format was requested, we already created it
-            return behavior_algebra_path if not output_path else output_path
-
+            # Use angr for disassembly and JSON export
+            if output_format == "json":
+                cfg_analysis = get_angr_cfg(binary_path)
+                cfg_path = output_path if output_path else os.path.join(os.path.dirname(binary_path), generate_output_filename(prefix="cfg", extension="json"))
+                export_cfg_json(cfg_analysis, cfg_path)
+                print(f"angr CFG exported as JSON to {cfg_path}")
+                return cfg_path
+            else:
+                # Default: export behavior algebra as text
+                assembly = disassemble_with_angr(binary_path)
+                if output_path:
+                    with open(output_path, "w") as f:
+                        f.write(assembly)
+                    print(f"angr disassembly exported as text to {output_path}")
+                    return output_path
+                else:
+                    return assembly
     except Exception as e:
         print(f"ERROR: {str(e)}")
         import traceback

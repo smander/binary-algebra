@@ -6,7 +6,11 @@ setup(
     packages=find_packages(),
     install_requires=[
         "angr",
+        # Optional: binutils is a system package, not a pip package, but document it for users
     ],
+    extras_require={
+        'colab': [],  # No pip package for objdump/binutils, but document for clarity
+    },
     entry_points={
         'console_scripts': [
             'behavior-algebra=behavior_algebra.disassembler:main',
