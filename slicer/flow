@@ -1,0 +1,91 @@
+FUNCTION FindAllMatchingTraces(startNode, equations, pattern)
+    // Розбираємо шаблон на типи інструкцій (наприклад, "mov.call.nop" → ["mov", "call", "nop"])
+    patternTypes ← SplitPattern(pattern)
+    visited ← CREATE_SET()
+    allTraces ← CREATE_LIST()
+
+    // Черга для BFS
+    queue ← CREATE_QUEUE()
+
+    // Початковий стан: (вузол, індекс шаблону, послідовність інструкцій, траса переходів)
+    traceSequence ← CREATE_LIST()
+    APPEND(traceSequence, {node: startNode, equation: equations[startNode]})
+    ENQUEUE(queue, (startNode, 0, [], traceSequence))
+    ADD(visited, (startNode, 0))
+
+    WHILE NOT IS_EMPTY(queue)
+        node, patternIndex, matchedInst, flowTrace ← DEQUEUE(queue)
+
+        // Розбираємо рівняння на атомарні інструкції
+        nodeEquation ← equations[node]  // "ret(4017ba).push(4017bb).mov(4017bc).B(4017bf)"
+        instructions ← SPLIT(nodeEquation, ".")
+
+        // Проходимо послідовно по всіх інструкціях поточного вузла
+        FOR i FROM 0 TO LENGTH(instructions) - 1
+            inst ← instructions[i]
+
+            IF STARTS_WITH(inst, "B(") THEN
+                // Це перехід до іншої поведінки
+                targetID ← EXTRACT_TARGET_ID(inst)
+
+                // Додаємо перехід до траси
+                newFlowTrace ← COPY_LIST(flowTrace)
+                APPEND(newFlowTrace, {type: "CALL", from: node, to: targetID, instruction: inst})
+
+                // Продовжуємо трасування в цільовому вузлі з тим самим patternIndex
+                IF targetID IN equations AND NOT CONTAINS(visited, (targetID, patternIndex)) THEN
+                    ADD(visited, (targetID, patternIndex))
+                    ENQUEUE(queue, (targetID, patternIndex, matchedInst, newFlowTrace))
+            ELSE
+                // Звичайна інструкція, перевіряємо на відповідність шаблону
+                instType ← EXTRACT_INSTR_TYPE(inst)
+
+                IF patternIndex < LENGTH(patternTypes) AND instType = patternTypes[patternIndex] THEN
+                    // Інструкція відповідає поточному елементу шаблону
+                    newMatchedInst ← COPY_LIST(matchedInst)
+                    APPEND(newMatchedInst, inst)
+
+                    // Додаємо інструкцію до траси
+                    newFlowTrace ← COPY_LIST(flowTrace)
+                    APPEND(newFlowTrace, {type: "MATCH", node: node, instruction: inst, patternPos: patternIndex})
+
+                    nextPatternIndex ← patternIndex + 1
+
+                    IF nextPatternIndex = LENGTH(patternTypes) THEN
+                        // Знайшли повний шаблон
+                        result ← CREATE_MAP()
+                        result["matchedInstructions"] ← newMatchedInst
+                        result["controlFlowTrace"] ← newFlowTrace
+                        APPEND(allTraces, result)
+                    ELSE
+                        // Продовжуємо пошук з наступним елементом шаблону
+
+                        // 1. Перевіряємо наступні інструкції в поточному вузлі
+                        IF NOT CONTAINS(visited, (node, nextPatternIndex)) THEN
+                            ADD(visited, (node, nextPatternIndex))
+                            ENQUEUE(queue, (node, nextPatternIndex, newMatchedInst, newFlowTrace))
+
+                        // 2. Перевіряємо B-переходи в кінці поточного рівняння
+                        FOR j FROM i + 1 TO LENGTH(instructions) - 1
+                            nextInst ← instructions[j]
+                            IF STARTS_WITH(nextInst, "B(") THEN
+                                targetID ← EXTRACT_TARGET_ID(nextInst)
+
+                                // Додаємо перехід до траси
+                                branchTrace ← COPY_LIST(newFlowTrace)
+                                APPEND(branchTrace, {type: "BRANCH", from: node, to: targetID, instruction: nextInst})
+
+                                IF targetID IN equations AND NOT CONTAINS(visited, (targetID, nextPatternIndex)) THEN
+                                    ADD(visited, (targetID, nextPatternIndex))
+                                    ENQUEUE(queue, (targetID, nextPatternIndex, newMatchedInst, branchTrace))
+                ELSE
+                    // Інструкція не відповідає шаблону, додаємо до траси як проміжну
+                    newFlowTrace ← COPY_LIST(flowTrace)
+                    APPEND(newFlowTrace, {type: "INSTRUCTION", node: node, instruction: inst})
+
+                    // Продовжуємо пошук з тим самим patternIndex
+                    IF i = LENGTH(instructions) - 1 AND NOT CONTAINS(visited, (node, patternIndex)) THEN
+                        ADD(visited, (node, patternIndex))
+                        ENQUEUE(queue, (node, patternIndex, matchedInst, newFlowTrace))
+
+    RETURN allTraces

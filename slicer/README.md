@@ -22,7 +22,7 @@ The algorithm follows these main steps:
 ## Usage
 
 ```bash
-python slice_builder.py <behavior_algebra_file> <pattern>
+python slicer.py <behavior_algebra_file> <pattern>
 ```
 
 Example:
