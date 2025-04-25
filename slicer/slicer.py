@@ -470,36 +470,52 @@ def clean_unreachable_paths(behavior_rhs):
     return new_rhs
 
 
-def truncate_at_template_end(rhs, end_instr_type):
-    """
-    Truncate behavior RHS at the first occurrence of the template end instruction.
-    """
-    pattern = fr'{end_instr_type}\(([^)]+)\)'
-    match = re.search(pattern, rhs)
-
-    if match:
-        # Keep everything up to and including the end instruction
-        return rhs[:match.end()]
-
-    return rhs
-
-
 def create_filtered_behaviors(path, equations, template_sequence):
     """
     Create filtered version of behaviors in a path by:
     1. Removing unreachable branch paths
     2. Truncating at the first template end instruction
+    3. Finding appropriate start/end points based on template instructions
 
     Returns a dict of filtered behavior equations.
     """
-    # Extract the end instruction type from the template
+    # Extract the instruction types from the template
+    first_instr_type = template_sequence[0]["type"]
     end_instr_type = template_sequence[-1]["type"]
 
     # Process each behavior in the path
     filtered_equations = {}
     behaviors = path.split(" -> ")
 
-    for behavior in behaviors:
+    # Find the first behavior that contains the first template instruction
+    start_index = -1
+    for i, behavior in enumerate(behaviors):
+        if behavior in equations and has_instruction(equations[behavior], first_instr_type):
+            start_index = i
+            break
+
+    if start_index == -1:
+        print(f"Warning: No behavior in path contains {first_instr_type}")
+        return {}
+
+    # Find the last behavior that contains the end template instruction
+    end_index = -1
+    for i, behavior in enumerate(behaviors):
+        if behavior in equations and has_instruction(equations[behavior], end_instr_type):
+            end_index = i
+
+    if end_index == -1:
+        print(f"Warning: No behavior in path contains {end_instr_type}")
+        return {}
+
+    # If end comes before start, something is wrong
+    if end_index < start_index:
+        print(f"Warning: End instruction {end_instr_type} found before start instruction {first_instr_type}")
+        return {}
+
+    # Process only the behaviors between start and end (inclusive)
+    for i in range(start_index, end_index + 1):
+        behavior = behaviors[i]
         if behavior not in equations:
             continue
 
@@ -508,14 +524,77 @@ def create_filtered_behaviors(path, equations, template_sequence):
         # Clean unreachable paths
         cleaned_rhs = clean_unreachable_paths(rhs)
 
-        # Truncate at template end if needed
-        if has_instruction(cleaned_rhs, end_instr_type):
-            truncated_rhs = truncate_at_template_end(cleaned_rhs, end_instr_type)
-            filtered_equations[behavior] = truncated_rhs
-        else:
-            filtered_equations[behavior] = cleaned_rhs
+        # If this is the first behavior with first instruction, remove everything before it
+        if i == start_index:
+            # Find the position of the first instruction
+            pattern = fr'{first_instr_type}\(([^)]+)\)'
+            match = re.search(pattern, cleaned_rhs)
+            if match:
+                start_pos = match.start()
+                # Find the last dot before this instruction
+                last_dot = cleaned_rhs[:start_pos].rfind('.')
+                if last_dot != -1:
+                    # Start from the first instruction (removing everything before it)
+                    cleaned_rhs = cleaned_rhs[last_dot + 1:]
+
+        # If this is the last behavior with end instruction, truncate after it
+        if i == end_index:
+            cleaned_rhs = truncate_behavior(cleaned_rhs, end_instr_type, 'after')
+
+        filtered_equations[behavior] = cleaned_rhs
+
+    # Debug information
+    if filtered_equations:
+        print(f"Found valid path from {behaviors[start_index]} to {behaviors[end_index]}")
+        print(f"Path contains {len(filtered_equations)} behaviors with {first_instr_type} and {end_instr_type}")
 
     return filtered_equations
+
+
+def truncate_behavior(rhs, instr_type, truncate_point="before"):
+    """
+    Simplified function to truncate a behavior RHS at a specific instruction.
+
+    Args:
+        rhs: The right-hand side of the behavior equation
+        instr_type: The instruction type to find (e.g., 'mov', 'test', 'nop')
+        truncate_point: Where to truncate -
+                       "before": keep instructions before the target instruction
+                       "after": keep instructions up to and including the target instruction
+
+    Returns:
+        The truncated RHS based on the specified truncate_point
+    """
+    # Create pattern to match the instruction
+    pattern = fr'{instr_type}\(([^)]+)\)'
+
+    match = re.search(pattern, rhs)
+    if not match:
+        return rhs  # No match found, return original
+
+    # Find the positions to truncate
+    start_pos = match.start()  # Start of the instruction
+    end_pos = match.end()  # End of the instruction
+
+    if truncate_point == "before":
+        # Keep everything before the instruction
+        # Find the last dot before the instruction
+        last_dot = rhs[:start_pos].rfind('.')
+        if last_dot != -1:
+            return rhs[:last_dot + 1]
+        else:
+            return ""  # No previous instruction, return empty
+
+    elif truncate_point == "after":
+        # Keep everything up to and including the instruction
+        # Find the next dot after the instruction
+        next_dot = rhs[end_pos:].find('.')
+        if next_dot != -1:
+            return rhs[:end_pos + next_dot]
+        else:
+            return rhs  # No next instruction, return until end
+
+    return rhs  # Default case, return original
 
 
 def save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr):
