@@ -423,6 +423,101 @@ def extract_instruction(behavior_rhs, instr_type):
     return matches if matches else []
 
 
+def clean_unreachable_paths(behavior_rhs):
+    """
+    Identify and clean unreachable paths in a behavior equation.
+    Looks for patterns like: je(addr). B(target1) + !je(addr).B(target2)
+    Removes branches to registers, hex addresses, or memory references.
+    """
+    # Look for branch patterns (conditional jumps)
+    branch_pattern = r'([a-z]+)\(([^)]+)\)\.\s*B\(([^)]+)\)\s*\+\s*!([a-z]+)\(([^)]+)\)\.B\(([^)]+)\)'
+
+    matches = list(re.finditer(branch_pattern, behavior_rhs))
+    if not matches:
+        # No branches to clean, keep as is
+        return behavior_rhs
+
+    new_rhs = behavior_rhs
+    for match in matches:
+        cond_type = match.group(1)  # je, jmp, etc.
+        cond_addr = match.group(2)  # Address
+        true_target = match.group(3)  # Target if condition is true
+        false_target = match.group(6)  # Target if condition is false
+
+        full_branch = match.group(0)
+
+        # Check if this is a jump instruction
+        is_jump = cond_type.startswith('j')
+
+        # Check for dynamic references or hex addresses
+        true_is_dynamic = any(ref in true_target for ref in ['rax', 'rbx', 'rcx', 'rdx', 'qword ptr'])
+        true_is_hex = true_target.startswith('0x')
+
+        # If true branch is dynamic or hex address, remove it and keep only false branch
+        if is_jump and (true_is_dynamic or true_is_hex):
+            new_branch = f"{cond_type}({cond_addr}).B({false_target})"
+            new_rhs = new_rhs.replace(full_branch, new_branch)
+
+        # Check the false branch too
+        false_is_dynamic = any(ref in false_target for ref in ['rax', 'rbx', 'rcx', 'rdx', 'qword ptr'])
+        false_is_hex = false_target.startswith('0x')
+
+        # If false branch is dynamic or hex address, remove it and keep only true branch
+        if is_jump and (false_is_dynamic or false_is_hex):
+            new_branch = f"{cond_type}({cond_addr}).B({true_target})"
+            new_rhs = new_rhs.replace(full_branch, new_branch)
+
+    return new_rhs
+
+
+def truncate_at_template_end(rhs, end_instr_type):
+    """
+    Truncate behavior RHS at the first occurrence of the template end instruction.
+    """
+    pattern = fr'{end_instr_type}\(([^)]+)\)'
+    match = re.search(pattern, rhs)
+
+    if match:
+        # Keep everything up to and including the end instruction
+        return rhs[:match.end()]
+
+    return rhs
+
+
+def create_filtered_behaviors(path, equations, template_sequence):
+    """
+    Create filtered version of behaviors in a path by:
+    1. Removing unreachable branch paths
+    2. Truncating at the first template end instruction
+
+    Returns a dict of filtered behavior equations.
+    """
+    # Extract the end instruction type from the template
+    end_instr_type = template_sequence[-1]["type"]
+
+    # Process each behavior in the path
+    filtered_equations = {}
+    behaviors = path.split(" -> ")
+
+    for behavior in behaviors:
+        if behavior not in equations:
+            continue
+
+        rhs = equations[behavior]
+
+        # Clean unreachable paths
+        cleaned_rhs = clean_unreachable_paths(rhs)
+
+        # Truncate at template end if needed
+        if has_instruction(cleaned_rhs, end_instr_type):
+            truncated_rhs = truncate_at_template_end(cleaned_rhs, end_instr_type)
+            filtered_equations[behavior] = truncated_rhs
+        else:
+            filtered_equations[behavior] = cleaned_rhs
+
+    return filtered_equations
+
+
 def save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr):
     """Save the slice and path traces to organized directory structure."""
     import os
@@ -548,7 +643,25 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                     f.write(f"{last_instr}: {behavior} -> {instr}\n")
                     seen_behaviors.add(behavior)
                     break
+            # Create a filtered behaviors file
+        filtered_file = os.path.join(trace_dir, "filtered_behaviors.txt")
 
+        # Generate filtered behaviors for this path
+        filtered_equations = create_filtered_behaviors(path_trace, equations, template_sequence)
+
+        # Save the filtered behaviors
+        with open(filtered_file, 'w') as f:
+            f.write(f"# Filtered Behaviors for Trace {i + 1}\n")
+            f.write(f"# Template: {template}\n")
+            f.write("# The following behaviors have been:\n")
+            f.write("#  1. Cleaned to remove unreachable paths (dynamic references or hex addresses)\n")
+            f.write(f"#  2. Truncated at the template end instruction: {template_sequence[-1]['type']}\n\n")
+
+            for behavior in path_trace.split(" -> "):
+                if behavior in filtered_equations:
+                    f.write(f"{behavior} = {filtered_equations[behavior]}\n")
+
+        print(f"  Created filtered behaviors at {filtered_file}")
     print(f"\nAll files saved to {base_dir} directory")
     return base_dir
 
