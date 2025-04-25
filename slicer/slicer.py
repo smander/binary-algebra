@@ -428,7 +428,33 @@ def clean_unreachable_paths(behavior_rhs):
     Identify and clean unreachable paths in a behavior equation.
     Looks for patterns like: je(addr). B(target1) + !je(addr).B(target2)
     Removes branches to registers, hex addresses, or memory references.
+    Also filters out dynamic behaviors like B(0x456100); and B(rax);
     """
+    # Define all registers to filter out
+    registers = [
+        'rax', 'rbx', 'rcx', 'rdx', 'rsi', 'rdi', 'rbp', 'rsp', 'r8', 'r9', 'r10',
+        'r11', 'r12', 'r13', 'r14', 'r15', 'eax', 'ebx', 'ecx', 'edx', 'esi', 'edi',
+        'ebp', 'esp', 'r8d', 'r9d', 'r10d', 'r11d', 'r12d', 'r13d', 'r14d', 'r15d',
+        'ax', 'bx', 'cx', 'dx', 'si', 'di', 'bp', 'sp', 'al', 'bl', 'cl', 'dl',
+        'ah', 'bh', 'ch', 'dh'
+    ]
+
+    # Filter out dynamic behavior references with hex addresses: B(0x456100);
+    dynamic_behavior_pattern = r'B\(0x[0-9a-fA-F]+\);\.?'
+    behavior_rhs = re.sub(dynamic_behavior_pattern, '', behavior_rhs)
+
+    # Filter out dynamic behavior references with registers: B(rax);
+    for reg in registers:
+        reg_pattern = fr'B\({reg}\);\.?'
+        behavior_rhs = re.sub(reg_pattern, '', behavior_rhs)
+
+    # Filter out dynamic behavior references with memory pointers: B(qword ptr [rax]);
+    pointer_pattern = r'B\((qword|dword|word|byte)\s+ptr\s+\[[^\]]+\]\);\.?'
+    behavior_rhs = re.sub(pointer_pattern, '', behavior_rhs)
+
+    # Fix double dots that might result from the above substitution
+    behavior_rhs = behavior_rhs.replace('..', '.')
+
     # Look for branch patterns (conditional jumps)
     branch_pattern = r'([a-z]+)\(([^)]+)\)\.\s*B\(([^)]+)\)\s*\+\s*!([a-z]+)\(([^)]+)\)\.B\(([^)]+)\)'
 
@@ -449,8 +475,12 @@ def clean_unreachable_paths(behavior_rhs):
         # Check if this is a jump instruction
         is_jump = cond_type.startswith('j')
 
-        # Check for dynamic references or hex addresses
-        true_is_dynamic = any(ref in true_target for ref in ['rax', 'rbx', 'rcx', 'rdx', 'qword ptr'])
+        # Check for dynamic references or hex addresses in true branch
+        true_is_dynamic = any(reg in true_target for reg in registers)
+        true_is_dynamic = true_is_dynamic or 'qword ptr' in true_target
+        true_is_dynamic = true_is_dynamic or 'byte ptr' in true_target
+        true_is_dynamic = true_is_dynamic or 'word ptr' in true_target
+        true_is_dynamic = true_is_dynamic or 'dword ptr' in true_target
         true_is_hex = true_target.startswith('0x')
 
         # If true branch is dynamic or hex address, remove it and keep only false branch
@@ -459,7 +489,11 @@ def clean_unreachable_paths(behavior_rhs):
             new_rhs = new_rhs.replace(full_branch, new_branch)
 
         # Check the false branch too
-        false_is_dynamic = any(ref in false_target for ref in ['rax', 'rbx', 'rcx', 'rdx', 'qword ptr'])
+        false_is_dynamic = any(reg in false_target for reg in registers)
+        false_is_dynamic = false_is_dynamic or 'qword ptr' in false_target
+        false_is_dynamic = false_is_dynamic or 'byte ptr' in false_target
+        false_is_dynamic = false_is_dynamic or 'word ptr' in false_target
+        false_is_dynamic = false_is_dynamic or 'dword ptr' in false_target
         false_is_hex = false_target.startswith('0x')
 
         # If false branch is dynamic or hex address, remove it and keep only true branch
@@ -468,7 +502,6 @@ def clean_unreachable_paths(behavior_rhs):
             new_rhs = new_rhs.replace(full_branch, new_branch)
 
     return new_rhs
-
 
 def create_filtered_behaviors(path, equations, template_sequence):
     """
