@@ -911,77 +911,42 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                         f.write("\n")
 
         # If we have assembly mapping, create a pure assembly trace file
+        # If we have assembly mapping, create a pure assembly trace file
         if has_asm:
             asm_trace_file = os.path.join(trace_dir, "assembly_trace.txt")
             with open(asm_trace_file, 'w') as f:
-                f.write(f"# Assembly Trace {i + 1}\n")
-                f.write(f"# Template: {template}\n\n")
-
                 # Process each behavior in the path
                 for behavior in path_trace.split(" -> "):
                     if behavior in filtered_equations:
-                        f.write(f"# {behavior}\n")
-
-                        # Get assembly instructions
+                        # Get assembly instructions without adding behavior comments
                         asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
                         for addr, instr_type, asm in asm_instructions:
                             addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
                             f.write(f"{addr_hex}: {asm}\n")
-                        f.write("\n")
+
             print(f"  Created pure assembly trace at {asm_trace_file}")
 
-            # Create a directory for standalone assembly files
-            asm_dir = os.path.join(trace_dir, "assembly")
-            os.makedirs(asm_dir, exist_ok=True)
+            asm_output_file = os.path.join(base_dir, "assembly_combined.asm")
+            with open(asm_output_file, 'w') as f:
+                # Process all paths
+                for path_trace in path_traces:
+                    behaviors = path_trace.split(" -> ")
 
-            # Create a separate assembly file for each behavior
-            for behavior in path_trace.split(" -> "):
-                if behavior in filtered_equations:
-                    # Normalize behavior name for file naming
-                    behavior_name = behavior.replace('(', '_').replace(')', '_')
-                    asm_file = os.path.join(asm_dir, f"{behavior_name}.asm")
+                    # Get filtered behaviors for this path
+                    filtered_behaviors = create_filtered_behaviors(path_trace, equations, template_sequence)
 
-                    with open(asm_file, 'w') as f:
-                        f.write(f"# Assembly for {behavior}\n\n")
+                    # Process each behavior
+                    for behavior in behaviors:
+                        if behavior in filtered_behaviors:
+                            # Get assembly instructions
+                            asm_instructions = convert_behavior_to_asm(filtered_behaviors[behavior], asm_map)
+                            for addr, instr_type, asm in asm_instructions:
+                                addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                                f.write(f"{addr_hex}: {asm}\n")
 
-                        # Get assembly instructions
-                        asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
-                        for addr, instr_type, asm in asm_instructions:
-                            addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
-                            f.write(f"{addr_hex}: {asm}\n")
-
-            print(f"  Created separate assembly files in {asm_dir}")
+            print(f"Created combined assembly file at {asm_output_file}")
 
         print(f"  Created filtered behaviors at {filtered_file}")
-
-    # Create a pure assembly output file for the entire slice
-    if has_asm:
-        asm_output_file = os.path.join(base_dir, "assembly_output.asm")
-        with open(asm_output_file, 'w') as f:
-            f.write(f"# Assembly Code for Template: {template}\n\n")
-
-            # Process filtered behaviors from all paths
-            for i, path_trace in enumerate(path_traces):
-                f.write(f"# Path {i + 1}\n")
-                behaviors = path_trace.split(" -> ")
-
-                # Get filtered behaviors for this path
-                filtered_behaviors = create_filtered_behaviors(path_trace, equations, template_sequence)
-
-                for behavior in behaviors:
-                    if behavior in filtered_behaviors:
-                        f.write(f"# {behavior}\n")
-
-                        # Get assembly instructions
-                        asm_instructions = convert_behavior_to_asm(filtered_behaviors[behavior], asm_map)
-                        for addr, instr_type, asm in asm_instructions:
-                            addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
-                            f.write(f"{addr_hex}: {asm}\n")
-                        f.write("\n")
-
-                f.write("\n# -----\n\n")
-
-        print(f"Created standalone assembly file at {asm_output_file}")
 
     print(f"\nAll files saved to {base_dir} directory")
     return base_dir
