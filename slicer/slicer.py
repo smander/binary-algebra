@@ -630,7 +630,7 @@ def truncate_behavior(rhs, instr_type, truncate_point="before"):
     return rhs  # Default case, return original
 
 
-def save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr):
+def save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr, asm_map=None):
     """Save the slice and path traces to organized directory structure."""
     import os
     from datetime import datetime
@@ -647,6 +647,9 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
     first_instr = template_sequence[0]["type"]
     last_instr = template_sequence[-1]["type"]
 
+    # Check if we have assembly data
+    has_asm = asm_map is not None and len(asm_map) > 0
+
     # 1. Save path flows to a dedicated file
     path_flows_file = os.path.join(base_dir, "path_flows.txt")
     with open(path_flows_file, 'w') as f:
@@ -662,6 +665,17 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
         f.write(f"# All Behaviors for Template: {template}\n")
         for behavior, rhs in slice_equations.items():
             f.write(f"{behavior} = {rhs}\n")
+
+            # Add assembly if available
+            if has_asm:
+                # Convert behavior to assembly
+                asm_instructions = convert_behavior_to_asm(rhs, asm_map)
+                if asm_instructions:
+                    f.write("  # Assembly:\n")
+                    for addr, instr_type, asm in asm_instructions:
+                        addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                        f.write(f"  #   {addr_hex}: {asm}\n")
+                f.write("\n")
 
     print(f"All behaviors saved to {all_behaviors_file}")
 
@@ -684,6 +698,16 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
             for behavior in behaviors:
                 if behavior in equations:
                     f.write(f"{behavior} = {equations[behavior]}\n")
+
+                    # Add assembly if available
+                    if has_asm:
+                        asm_instructions = convert_behavior_to_asm(equations[behavior], asm_map)
+                        if asm_instructions:
+                            f.write("  # Assembly:\n")
+                            for addr, instr_type, asm in asm_instructions:
+                                addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                                f.write(f"  #   {addr_hex}: {asm}\n")
+                        f.write("\n")
 
         # Create a cleaned trace file with just the relevant instructions
         cleaned_trace_file = os.path.join(trace_dir, "cleaned_trace.txt")
@@ -713,6 +737,23 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                 for behavior, instr in trace_instrs[first_instr]:
                     f.write(f"Start: {behavior} -> {instr}\n")
 
+                    # Add assembly if available
+                    if has_asm:
+                        # Extract address from instruction
+                        addr_match = re.search(r'\(([^)]+)\)', instr)
+                        if addr_match:
+                            addr_str = addr_match.group(1)
+                            try:
+                                if addr_str.startswith('0x'):
+                                    addr_int = int(addr_str, 16)
+                                else:
+                                    addr_int = int(addr_str)
+
+                                if addr_int in asm_map:
+                                    f.write(f"        Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                            except ValueError:
+                                pass
+
             # Middle instructions
             for idx, instr_item in enumerate(template_sequence):
                 instr_type = instr_item["type"]
@@ -722,11 +763,45 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                         for behavior, instr in trace_instrs[instr_type]:
                             f.write(f"Middle: {behavior} -> {instr}\n")
 
+                            # Add assembly if available
+                            if has_asm:
+                                # Extract address from instruction
+                                addr_match = re.search(r'\(([^)]+)\)', instr)
+                                if addr_match:
+                                    addr_str = addr_match.group(1)
+                                    try:
+                                        if addr_str.startswith('0x'):
+                                            addr_int = int(addr_str, 16)
+                                        else:
+                                            addr_int = int(addr_str)
+
+                                        if addr_int in asm_map:
+                                            f.write(f"        Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                                    except ValueError:
+                                        pass
+
             # End instruction
             f.write(f"\n# End Instruction: {last_instr}\n")
             if trace_instrs[last_instr]:
                 for behavior, instr in trace_instrs[last_instr]:
                     f.write(f"End: {behavior} -> {instr}\n")
+
+                    # Add assembly if available
+                    if has_asm:
+                        # Extract address from instruction
+                        addr_match = re.search(r'\(([^)]+)\)', instr)
+                        if addr_match:
+                            addr_str = addr_match.group(1)
+                            try:
+                                if addr_str.startswith('0x'):
+                                    addr_int = int(addr_str, 16)
+                                else:
+                                    addr_int = int(addr_str)
+
+                                if addr_int in asm_map:
+                                    f.write(f"        Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                            except ValueError:
+                                pass
 
             # Also write a clean summary
             f.write("\n# Clean Summary (First occurrence of each instruction)\n")
@@ -737,6 +812,23 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                 if behavior not in seen_behaviors:
                     f.write(f"{first_instr}: {behavior} -> {instr}\n")
                     seen_behaviors.add(behavior)
+
+                    # Add assembly if available
+                    if has_asm:
+                        # Extract address from instruction
+                        addr_match = re.search(r'\(([^)]+)\)', instr)
+                        if addr_match:
+                            addr_str = addr_match.group(1)
+                            try:
+                                if addr_str.startswith('0x'):
+                                    addr_int = int(addr_str, 16)
+                                else:
+                                    addr_int = int(addr_str)
+
+                                if addr_int in asm_map:
+                                    f.write(f"    Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                            except ValueError:
+                                pass
                     break
 
             # Middle instructions in order
@@ -747,6 +839,23 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                         if behavior not in seen_behaviors:
                             f.write(f"{instr_type}: {behavior} -> {instr}\n")
                             seen_behaviors.add(behavior)
+
+                            # Add assembly if available
+                            if has_asm:
+                                # Extract address from instruction
+                                addr_match = re.search(r'\(([^)]+)\)', instr)
+                                if addr_match:
+                                    addr_str = addr_match.group(1)
+                                    try:
+                                        if addr_str.startswith('0x'):
+                                            addr_int = int(addr_str, 16)
+                                        else:
+                                            addr_int = int(addr_str)
+
+                                        if addr_int in asm_map:
+                                            f.write(f"    Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                                    except ValueError:
+                                        pass
                             break
 
             # Last instruction
@@ -754,8 +863,26 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                 if behavior not in seen_behaviors:
                     f.write(f"{last_instr}: {behavior} -> {instr}\n")
                     seen_behaviors.add(behavior)
+
+                    # Add assembly if available
+                    if has_asm:
+                        # Extract address from instruction
+                        addr_match = re.search(r'\(([^)]+)\)', instr)
+                        if addr_match:
+                            addr_str = addr_match.group(1)
+                            try:
+                                if addr_str.startswith('0x'):
+                                    addr_int = int(addr_str, 16)
+                                else:
+                                    addr_int = int(addr_str)
+
+                                if addr_int in asm_map:
+                                    f.write(f"    Assembly: {addr_int:x}: {asm_map[addr_int]}\n")
+                            except ValueError:
+                                pass
                     break
-            # Create a filtered behaviors file
+
+        # Create a filtered behaviors file
         filtered_file = os.path.join(trace_dir, "filtered_behaviors.txt")
 
         # Generate filtered behaviors for this path
@@ -773,14 +900,103 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                 if behavior in filtered_equations:
                     f.write(f"{behavior} = {filtered_equations[behavior]}\n")
 
+                    # Add assembly if available
+                    if has_asm:
+                        asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
+                        if asm_instructions:
+                            f.write("  # Assembly:\n")
+                            for addr, instr_type, asm in asm_instructions:
+                                addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                                f.write(f"  #   {addr_hex}: {asm}\n")
+                        f.write("\n")
+
+        # If we have assembly mapping, create a pure assembly trace file
+        if has_asm:
+            asm_trace_file = os.path.join(trace_dir, "assembly_trace.txt")
+            with open(asm_trace_file, 'w') as f:
+                f.write(f"# Assembly Trace {i + 1}\n")
+                f.write(f"# Template: {template}\n\n")
+
+                # Process each behavior in the path
+                for behavior in path_trace.split(" -> "):
+                    if behavior in filtered_equations:
+                        f.write(f"# {behavior}\n")
+
+                        # Get assembly instructions
+                        asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
+                        for addr, instr_type, asm in asm_instructions:
+                            addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                            f.write(f"{addr_hex}: {asm}\n")
+                        f.write("\n")
+            print(f"  Created pure assembly trace at {asm_trace_file}")
+
+            # Create a directory for standalone assembly files
+            asm_dir = os.path.join(trace_dir, "assembly")
+            os.makedirs(asm_dir, exist_ok=True)
+
+            # Create a separate assembly file for each behavior
+            for behavior in path_trace.split(" -> "):
+                if behavior in filtered_equations:
+                    # Normalize behavior name for file naming
+                    behavior_name = behavior.replace('(', '_').replace(')', '_')
+                    asm_file = os.path.join(asm_dir, f"{behavior_name}.asm")
+
+                    with open(asm_file, 'w') as f:
+                        f.write(f"# Assembly for {behavior}\n\n")
+
+                        # Get assembly instructions
+                        asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
+                        for addr, instr_type, asm in asm_instructions:
+                            addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                            f.write(f"{addr_hex}: {asm}\n")
+
+            print(f"  Created separate assembly files in {asm_dir}")
+
         print(f"  Created filtered behaviors at {filtered_file}")
+
+    # Create a pure assembly output file for the entire slice
+    if has_asm:
+        asm_output_file = os.path.join(base_dir, "assembly_output.asm")
+        with open(asm_output_file, 'w') as f:
+            f.write(f"# Assembly Code for Template: {template}\n\n")
+
+            # Process filtered behaviors from all paths
+            for i, path_trace in enumerate(path_traces):
+                f.write(f"# Path {i + 1}\n")
+                behaviors = path_trace.split(" -> ")
+
+                # Get filtered behaviors for this path
+                filtered_behaviors = create_filtered_behaviors(path_trace, equations, template_sequence)
+
+                for behavior in behaviors:
+                    if behavior in filtered_behaviors:
+                        f.write(f"# {behavior}\n")
+
+                        # Get assembly instructions
+                        asm_instructions = convert_behavior_to_asm(filtered_behaviors[behavior], asm_map)
+                        for addr, instr_type, asm in asm_instructions:
+                            addr_hex = f"0x{addr:x}" if isinstance(addr, int) else addr
+                            f.write(f"{addr_hex}: {asm}\n")
+                        f.write("\n")
+
+                f.write("\n# -----\n\n")
+
+        print(f"Created standalone assembly file at {asm_output_file}")
+
     print(f"\nAll files saved to {base_dir} directory")
     return base_dir
 
 
-def build_slice(equations_file, template):
+def build_slice(equations_file, template, objdump_file=None):
     """Build a behavior slice based on a template pattern."""
     equations = load_equations(equations_file)
+
+    # Load assembly mapping if objdump file is provided
+    asm_map = None
+    if objdump_file:
+        asm_map = parse_objdump(objdump_file)
+        print(f"Loaded assembly mapping with {len(asm_map)} instructions")
+
 
     # Parse the template into a sequence of instructions and wildcards
     template_sequence = parse_template(template)
@@ -879,40 +1095,112 @@ def build_slice(equations_file, template):
             print(f"{behavior} = {rhs}")
         count += 1
 
-    return slice_equations, path_traces, equations, behaviors_by_instr
+    return slice_equations, path_traces, equations, behaviors_by_instr, asm_map
+
+
+def parse_objdump(file_path):
+    """Parse an objdump output file to create a mapping of addresses to assembly instructions."""
+    asm_map = {}
+
+    with open(file_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Match patterns like "44fabd: mov %eax,0x10(%rdx)"
+            # This regex is more flexible with whitespace and different formats
+            match = re.match(r'([0-9a-f]+):\s*(.*)', line)
+            if match:
+                addr_str = match.group(1)
+                instruction = match.group(2).strip()
+
+                # Try to convert the address to int in different ways
+                try:
+                    # Try as hex
+                    addr = int(addr_str, 16)
+                    asm_map[addr] = instruction
+                    # Also store as decimal in case behaviors use decimal addresses
+                    asm_map[int(addr_str, 16)] = instruction
+
+                    # Debug print to verify
+                    print(f"Added mapping: 0x{addr:x} -> {instruction}")
+                except ValueError:
+                    print(f"Warning: Could not parse address: {addr_str}")
+
+    print(f"Loaded {len(asm_map)} assembly instructions from objdump")
+    # Print a sample of the loaded instructions
+    items = list(asm_map.items())
+    if items:
+        print("Sample of loaded instructions:")
+        for addr, instr in items[:5]:
+            print(f"  0x{addr:x}: {instr}")
+
+    return asm_map
+
+
+def convert_behavior_to_asm(behavior_rhs, asm_map):
+    """Convert a behavior equation RHS to corresponding assembly code."""
+    # Extract all instructions with their addresses
+    instruction_pattern = r'([a-z]+)\(([^)]+)\)'
+    instructions = re.findall(instruction_pattern, behavior_rhs)
+
+    # Map each instruction to its assembly representation
+    asm_instructions = []
+    for instr_type, addr in instructions:
+        try:
+            # Always interpret addresses as hex (remove any 0x prefix if present)
+            clean_addr = addr.replace('0x', '')
+            addr_int = int(clean_addr, 16)
+
+            # Check if we have this address in our map
+            if addr_int in asm_map:
+                asm_instr = asm_map[addr_int]
+                asm_instructions.append((addr_int, instr_type, asm_instr))
+            else:
+                asm_instructions.append((addr_int, instr_type, f"{instr_type}({addr}) (assembly not found)"))
+        except ValueError:
+            # Handle case where address isn't a valid hex number
+            asm_instructions.append((0, instr_type, f"{instr_type}({addr}) (cannot convert to assembly)"))
+
+    # Sort by address to maintain correct instruction order
+    asm_instructions.sort(key=lambda x: x[0])
+
+    return asm_instructions
 
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python slice_builderz.py <equations_file> <template>")
-        print("Example: python slice_builderz.py behavior_algebra.txt \"mov.X1;test.X2;nop\"")
+        print("Usage: python slicer.py <equations_file> <template> [<objdump_file>]")
+        print("Example: python slicer.py behavior_algebra.txt \"mov.X1;test.X2;nop\"")
+        print("Example with objdump: python slicer.py behavior_algebra.txt \"mov.X1;test.X2;nop\" objdump.txt")
         return
 
     equations_file = sys.argv[1]
     template = sys.argv[2]
 
+    # Check if objdump file is provided
+    objdump_file = None
+    if len(sys.argv) > 3:
+        objdump_file = sys.argv[3]
+        print(f"Using objdump file: {objdump_file}")
+
     # Build the slice
-    slice_equations, path_traces, equations, behaviors_by_instr = build_slice(equations_file, template)
+    slice_equations, path_traces, equations, behaviors_by_instr, asm_map = build_slice(equations_file, template,
+                                                                                       objdump_file)
 
-    print("\nSample behaviors in the slice:")
-    count = 0
-    for behavior, rhs in slice_equations.items():
-        print(f"{behavior} = {rhs}")
-        count += 1
-        if count >= 5:
-            print(f"(Showing 5 of {len(slice_equations)} behaviors)")
-            break
-
-    print("\nSample path traces:")
-    for i, trace in enumerate(path_traces[:3]):
-        print(f"Path {i + 1}: {trace}")
-
-    if len(path_traces) > 3:
-        print(f"(Showing 3 of {len(path_traces)} paths)")
+    # If we have assembly mapping, show some examples
+    if asm_map and len(asm_map) > 0:
+        print("\nSample assembly mapping:")
+        count = 0
+        for addr, asm in sorted(asm_map.items())[:5]:
+            print(f"0x{addr:x}: {asm}")
+            count += 1
+        if len(asm_map) > 5:
+            print(f"(Showing 5 of {len(asm_map)} assembly instructions)")
 
     # Save the slice to a file with the new directory structure
-    save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr)
-
+    save_slice(slice_equations, path_traces, template, equations, behaviors_by_instr, asm_map)
 
 if __name__ == "__main__":
     main()

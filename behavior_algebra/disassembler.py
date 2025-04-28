@@ -650,6 +650,13 @@ def process_binary(binary_path, output_path=None, output_format="txt", use_objdu
             generate_behavior_algebra(angr_disassembly, behavior_algebra_path)
             print(f"Behavior algebra written to: {behavior_algebra_path}")
             results['behavior_algebra'] = behavior_algebra_path
+            # Export angr asm dump (linear disassembly)
+            if angr_disassembly is not None:
+                asm_dump_path = os.path.join(export_dir, generate_output_filename(prefix="angr_asm_dump", extension="txt"))
+                with open(asm_dump_path, "w") as f:
+                    f.write(angr_disassembly)
+                print(f"angr asm dump exported as linear disassembly to {asm_dump_path}")
+                results['angr_asm_dump'] = asm_dump_path
         else:
             print("angr not available, skipping behavior algebra and CFG export.")
 

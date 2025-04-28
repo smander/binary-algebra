@@ -1,3 +1,3 @@
-mov.X1;test.X2;nop
-mov: Mem(i) != 0
-nop: FLAGS[0] == 0
+a1.X1;a2.X2
+a1: Mem(i) != 0
+a2: FLAGS[0] == 0
