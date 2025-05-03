@@ -1,0 +1,18 @@
+0x42394c: mov r15, r10
+0x42394f: mov r10, r14
+0x423952: mov qword ptr [rsp], rax
+0x423956: mov rax, qword ptr [rip + 0x9cdab]
+0x42395d: neg r10
+0x423960: lea rsi, [r14 + rax + 0x1f]
+0x423965: add rsi, rbp
+0x423968: test byte ptr [rbx + 4], 2
+0x42396c: jne 0x423a10
+0x423972: sub rsi, r12
+0x423975: and rsi, r10
+0x423978: mov r14, rsi
+0x42397b: jle 0x423b0d
+0x423981: mov qword ptr [rsp + 0x10], r10
+0x423986: mov rdi, r14
+0x423989: mov qword ptr [rsp + 8], r11
+0x423994: mov r8, rax
+0x423997: nop

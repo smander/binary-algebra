@@ -1,0 +1,16 @@
+mov : 1 -> sym_copy(source,dest)
+lea : 1 ->
+syscall : 1 ->
+jmp : 1 ->
+endbr64 : 1 ->
+push : 1 ->
+sub : 1 ->
+test : 1 ->
+js : SF == 1 ->
+xor : 1 ->
+jne : ZF == 0 ->
+add : 1 -> sym_copy(source,dest)
+pop : 1 ->
+nop : 1 ->
+neg : 1 ->
+jle : ZF == 1 ->
