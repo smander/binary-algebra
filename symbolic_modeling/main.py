@@ -42,6 +42,7 @@ def check_and_install():
 if not check_and_install():
     sys.exit(1)
 
+
 def main():
     parser = argparse.ArgumentParser(description='Symbolic Modeling of Intel x86 Instructions')
     parser.add_argument('trace_file', help='Path to the trace file')
@@ -49,9 +50,19 @@ def main():
     parser.add_argument('--output', default='trace_result.json', help='Output file for the SAT trace')
     parser.add_argument('--solver', default='z3', choices=['z3', 'cvc5'], help='SMT solver to use')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
+    parser.add_argument('--symbolic-hex', '-s', action='store_true', help='Use symbolic hex representation for output')
+    parser.add_argument('--test', action='store_true', help='Run tests instead of processing files')
     args = parser.parse_args()
 
     try:
+        # Verify Z3 is actually importable
+        try:
+            import z3
+        except ImportError:
+            print("ERROR: Z3 solver could not be imported despite installation check.")
+            print("Please ensure Z3 is properly installed with: pip install z3-solver")
+            return 1
+
         # Parse input files
         print(f"Parsing trace file: {args.trace_file}")
         trace = parse_trace_file(args.trace_file)
@@ -63,7 +74,8 @@ def main():
 
         # Execute trace symbolically
         print("Starting symbolic execution...")
-        trace_record = execute_trace(trace, semantics, args.solver, verbose=args.verbose)
+        trace_record = execute_trace(trace, semantics, args.solver, verbose=args.verbose,
+                                     use_symbolic_hex=args.symbolic_hex)
 
         # Save results
         if trace_record:
@@ -73,6 +85,14 @@ def main():
         else:
             print("Trace is UNSAT - no feasible execution")
             return 1
+    except ModuleNotFoundError as mnf:
+        if 'z3' in str(mnf):
+            print("ERROR: Z3 solver module not found during execution.")
+            print("This may be due to installation issues or Python path problems.")
+            print("Try installing Z3 manually with: pip install z3-solver")
+        else:
+            print(f"ERROR: Module not found - {mnf}", file=sys.stderr)
+        return 1
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         if args.verbose:

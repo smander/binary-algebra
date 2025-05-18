@@ -230,6 +230,30 @@ class SymbolicEnvironment:
 
         return result
 
+    def get_symbolic_hex_str(self):
+        """Get a string representation of the state using symbolic hex format ($)"""
+        from symbolic_hex_printer import value_to_symbolic_hex, flag_to_symbolic
+
+        result = "Registers:\n"
+        for reg in sorted(self.registers.keys()):
+            value = self.registers[reg]
+            sym_hex = value_to_symbolic_hex(value)
+            result += f"  {reg}: {sym_hex}\n"
+
+        result += "\nFlags:\n"
+        for flag in sorted(self.flags.keys()):
+            value = self.flags[flag]
+            sym_value = flag_to_symbolic(value)
+            result += f"  {flag}: {sym_value}\n"
+
+        if self.memory:
+            result += "\nMemory:\n"
+            for addr in self.memory.keys():
+                value = self.memory[addr]
+                sym_hex = value_to_symbolic_hex(value)
+                addr_str = str(addr)
+                result += f"  {addr_str}: {sym_hex}\n"
+
         return result
 
     def get_concrete_bits(self, bv):

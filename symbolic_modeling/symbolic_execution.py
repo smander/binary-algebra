@@ -27,6 +27,10 @@ def apply_postcondition(instruction, semantics, env):
     Returns:
         bool: True if postcondition was applied, False otherwise
     """
+    # Check if semantics has a postcondition
+    if not semantics.postcondition:
+        return False
+
     # Look for postcondition function with case variations
     opcode = instruction.opcode.lower()
     postcondition_func = (POSTCONDITION_MAP.get(opcode) or
@@ -50,7 +54,7 @@ def apply_postcondition(instruction, semantics, env):
         return False
 
 
-def execute_trace(trace, semantics, solver_type='z3', verbose=False):
+def execute_trace(trace, semantics, solver_type='z3', verbose=False, use_symbolic_hex=True):
     """
     Symbolically execute a trace of instructions
 
@@ -59,6 +63,7 @@ def execute_trace(trace, semantics, solver_type='z3', verbose=False):
         semantics: Dictionary mapping opcodes to InstructionSemantics
         solver_type: Type of SMT solver to use ('z3' or 'cvc5')
         verbose: Enable verbose output
+        use_symbolic_hex: Use symbolic hex representation for output
 
     Returns:
         TraceRecord: Record of execution or None if trace is UNSAT
@@ -74,7 +79,10 @@ def execute_trace(trace, semantics, solver_type='z3', verbose=False):
 
     if verbose:
         print("Initial symbolic state:")
-        print(env.get_state_str())
+        if use_symbolic_hex:
+            print(env.get_symbolic_hex_str())
+        else:
+            print(env.get_state_str())
 
     # Process each instruction
     for instruction in trace:
@@ -119,6 +127,9 @@ def execute_trace(trace, semantics, solver_type='z3', verbose=False):
     trace_record.set_final_state(env)
     if verbose:
         print("\nFinal symbolic state:")
-        print(env.get_state_str())
+        if use_symbolic_hex:
+            print(env.get_symbolic_hex_str())
+        else:
+            print(env.get_state_str())
 
     return trace_record
