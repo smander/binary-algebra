@@ -1,5 +1,5 @@
-mov : 1 -> sym_copy(source,dest)
-lea : 1 ->
+mov (SRC,DST) : 1 -> DST = sym_copy(SRC,DST)
+lea (ADDR,DST) : 1 -> DST = sym_copy(*ADDR,DST)
 syscall : 1 ->
 jmp : 1 ->
 endbr64 : 1 ->
@@ -7,10 +7,11 @@ push : 1 ->
 sub : 1 ->
 test : 1 ->
 js : SF == 1 ->
-xor : 1 ->
+xor (DST,SRC) : 1 -> DST = sym_xor(DST,SRC)
 jne : ZF == 0 ->
-add : 1 -> sym_copy(source,dest)
+add (DST,SRC) : 1 -> DST = sym_add(DST,SRC)
 pop : 1 ->
 nop : 1 ->
 neg : 1 ->
 jle : ZF == 1 ->
+and (DST,SRC) : 1 -> DST = sym_and(DST,SRC)

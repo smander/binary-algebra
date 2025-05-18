@@ -1,4 +1,16 @@
+#!/usr/bin/env python3
+
+"""
+Semantics parser for symbolic modeling
+Parses semantics files defining instruction semantics
+"""
+
+
 class InstructionSemantics:
+    """
+    Class representing the semantics of an instruction
+    """
+
     def __init__(self, opcode, precondition, postcondition):
         self.opcode = opcode
         self.precondition = precondition
@@ -13,8 +25,8 @@ def parse_semantics_file(filename):
     Parse a semantics file with instruction semantics
 
     Format expected:
-    mov : 1 ->
-    lea : 1 ->
+    mov : 1 -> DST = BIN_COPY(SRC,DST)
+    lea : 1 -> DST = BIN_COPY(*ADDR,DST)
     syscall : 1 ->
     ...
 

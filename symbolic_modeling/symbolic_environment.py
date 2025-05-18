@@ -1,4 +1,8 @@
-from z3 import *
+"""
+Symbolic Environment for Intel x86 instructions
+"""
+
+import z3
 
 
 class SymbolicEnvironment:
@@ -54,33 +58,40 @@ class SymbolicEnvironment:
         self.constraints = []
         # Unique counter for creating symbolic variables
         self.sym_counter = 0
+        # Map to track complex arithmetic operations
+        self.complex_ops = set()
 
     def _init_registers(self):
         # Create symbolic variables for all 64-bit registers
         registers = {}
         for reg, size in self.REG_SIZES.items():
-            if size == 64 and reg != 'rip':  # Only create 64-bit registers initially
-                registers[reg] = BitVec(f"{reg}_0", 64)
-
-        # Set RIP to a concrete value
-        registers['rip'] = BitVecVal(0, 64)
+            if size == 64:
+                if reg == 'rsp':
+                    # Set RSP to 2^64 - 1
+                    registers[reg] = z3.BitVecVal(2 ** 64 - 1, 64)
+                elif reg == 'rip':
+                    # Set RIP to a concrete value
+                    registers[reg] = z3.BitVecVal(0, 64)
+                else:
+                    # Initialize other 64-bit registers with symbolic values
+                    registers[reg] = z3.BitVec(f"{reg}_0", 64)
 
         return registers
 
     def _init_flags(self):
         # Initialize flags with symbolic values
         flags = {
-            'ZF': Bool('ZF_0'),
-            'SF': Bool('SF_0'),
-            'CF': Bool('CF_0'),
-            'OF': Bool('OF_0')
+            'ZF': z3.Bool('ZF_0'),
+            'SF': z3.Bool('SF_0'),
+            'CF': z3.Bool('CF_0'),
+            'OF': z3.Bool('OF_0')
         }
         return flags
 
     def create_fresh_symbol(self, name, size):
         """Create a fresh symbolic variable with a unique name"""
         self.sym_counter += 1
-        return BitVec(f"{name}_{self.sym_counter}", size)
+        return z3.BitVec(f"{name}_{self.sym_counter}", size)
 
     def get_register(self, reg_name):
         """Get the value of a register, handling sub-registers appropriately"""
@@ -94,13 +105,13 @@ class SymbolicEnvironment:
 
             # Extract the appropriate bits based on the register name
             if reg_name.endswith('d'):  # 32-bit
-                return parent_value.extract(31, 0)
+                return z3.Extract(31, 0, parent_value)
             elif reg_name.endswith('w'):  # 16-bit
-                return parent_value.extract(15, 0)
+                return z3.Extract(15, 0, parent_value)
             elif reg_name.endswith('l'):  # Lower 8-bit
-                return parent_value.extract(7, 0)
+                return z3.Extract(7, 0, parent_value)
             elif reg_name.endswith('h'):  # Higher 8-bit
-                return parent_value.extract(15, 8)
+                return z3.Extract(15, 8, parent_value)
 
         raise ValueError(f"Unknown register: {reg_name}")
 
@@ -117,17 +128,28 @@ class SymbolicEnvironment:
             # Update the appropriate bits based on the register name
             if reg_name.endswith('d'):  # 32-bit
                 # Clear upper 32 bits, set lower 32 bits
-                self.registers[parent] = parent_value & BitVecVal(0xFFFFFFFF00000000, 64) | value.zero_extend(32)
+                self.registers[parent] = z3.Concat(
+                    z3.Extract(63, 32, parent_value),
+                    value
+                )
             elif reg_name.endswith('w'):  # 16-bit
                 # Clear bits 15-0, set with new value
-                self.registers[parent] = parent_value & BitVecVal(0xFFFFFFFFFFFF0000, 64) | value.zero_extend(48)
+                self.registers[parent] = z3.Concat(
+                    z3.Extract(63, 16, parent_value),
+                    value
+                )
             elif reg_name.endswith('l'):  # Lower 8-bit
                 # Clear bits 7-0, set with new value
-                self.registers[parent] = parent_value & BitVecVal(0xFFFFFFFFFFFFFF00, 64) | value.zero_extend(56)
+                self.registers[parent] = z3.Concat(
+                    z3.Extract(63, 8, parent_value),
+                    value
+                )
             elif reg_name.endswith('h'):  # Higher 8-bit
                 # Clear bits 15-8, set with new value
-                high_byte = value.zero_extend(56) << 8
-                self.registers[parent] = parent_value & BitVecVal(0xFFFFFFFFFFFF00FF, 64) | high_byte
+                self.registers[parent] = z3.Concat(
+                    z3.Extract(63, 16, parent_value),
+                    z3.Concat(value, z3.Extract(7, 0, parent_value))
+                )
             return
 
         raise ValueError(f"Unknown register: {reg_name}")
@@ -168,6 +190,16 @@ class SymbolicEnvironment:
         """Check if all constraints are satisfiable using the given solver"""
         return solver.check_sat(self.constraints)
 
+    def mark_complex_arithmetic(self, reg_name):
+        """Mark a register as containing the result of a complex arithmetic operation"""
+        self.complex_ops.add(reg_name)
+
+    def is_complex_arithmetic(self, value):
+        """Check if a value is related to complex arithmetic operations"""
+        if isinstance(value, str) and value in self.complex_ops:
+            return True
+        return False
+
     def clone(self):
         """Create a deep copy of the current environment"""
         new_env = SymbolicEnvironment()
@@ -176,6 +208,7 @@ class SymbolicEnvironment:
         new_env.memory = {k: v for k, v in self.memory.items()}
         new_env.constraints = [c for c in self.constraints]
         new_env.sym_counter = self.sym_counter
+        new_env.complex_ops = set(self.complex_ops)
         return new_env
 
     def get_state_str(self):
@@ -191,6 +224,23 @@ class SymbolicEnvironment:
         if self.memory:
             result += "\nMemory:\n"
             for addr in sorted(self.memory.keys()):
-                result += f"  {addr:x}: {self.memory[addr]}\n"
+                result += f"  {addr}: {self.memory[addr]}\n"
 
+        return result
+
+    def get_concrete_bits(self, bv):
+        """
+        Return a dictionary mapping bit positions to concrete values (0 or 1)
+        for bits that are known to be concrete
+        """
+        result = {}
+
+        # Simple case: the entire value is concrete
+        if z3.is_bv_value(bv):
+            val = bv.as_long()
+            for i in range(bv.size()):
+                result[i] = (val >> i) & 1
+            return result
+
+        # For complex expressions, return empty dictionary (no concrete bits)
         return result
