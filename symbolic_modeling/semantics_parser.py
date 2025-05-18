@@ -1,23 +1,15 @@
-#!/usr/bin/env python3
-
-"""
-Semantics parser for symbolic modeling
-Parses semantics files defining instruction semantics
-"""
-
-
 class InstructionSemantics:
-    """
-    Class representing the semantics of an instruction
-    """
-
-    def __init__(self, opcode, precondition, postcondition):
+    def __init__(self, opcode, operands, precondition, postcondition):
         self.opcode = opcode
+        self.operands = operands  # List of operand names like ["SRC", "DST"]
         self.precondition = precondition
         self.postcondition = postcondition
 
     def __str__(self):
-        return f"{self.opcode}: {self.precondition} -> {self.postcondition}"
+        if self.operands:
+            return f"{self.opcode} ({', '.join(self.operands)}): {self.precondition} -> {self.postcondition}"
+        else:
+            return f"{self.opcode}: {self.precondition} -> {self.postcondition}"
 
 
 def parse_semantics_file(filename):
@@ -25,8 +17,8 @@ def parse_semantics_file(filename):
     Parse a semantics file with instruction semantics
 
     Format expected:
-    mov : 1 -> DST = BIN_COPY(SRC,DST)
-    lea : 1 -> DST = BIN_COPY(*ADDR,DST)
+    mov (SRC,DST) : 1 -> DST = sym_copy(SRC,DST)
+    lea (ADDR,DST) : 1 -> DST = sym_copy(*ADDR,DST)
     syscall : 1 ->
     ...
 
@@ -40,23 +32,33 @@ def parse_semantics_file(filename):
             if not line or line.startswith('#'):
                 continue
 
-            # Parse semantics line
-            # Format: opcode : precondition -> postcondition
+            # Parse opcode and operands
             if ':' not in line:
                 continue
 
-            parts = line.split(':', 1)
-            opcode = parts[0].strip()
+            opcode_part, rest = line.split(':', 1)
+            opcode_part = opcode_part.strip()
 
-            if '->' not in parts[1]:
+            # Check if there are operands in parentheses
+            operands = []
+            base_opcode = opcode_part
+            if '(' in opcode_part and ')' in opcode_part:
+                parts = opcode_part.split('(', 1)
+                base_opcode = parts[0].strip()
+                operands_part = parts[1].split(')', 1)[0].strip()
+                operands = [op.strip() for op in operands_part.split(',')]
+
+            # Parse precondition and postcondition
+            if '->' not in rest:
                 continue
 
-            sem_parts = parts[1].strip().split('->')
+            sem_parts = rest.strip().split('->')
             precondition = sem_parts[0].strip()
             postcondition = ""
             if len(sem_parts) > 1:
                 postcondition = sem_parts[1].strip()
 
-            semantics[opcode] = InstructionSemantics(opcode, precondition, postcondition)
+            # Store with just the base opcode as key
+            semantics[base_opcode.lower()] = InstructionSemantics(base_opcode, operands, precondition, postcondition)
 
     return semantics
