@@ -23,25 +23,31 @@ def apply_postcondition(instruction, semantics, env):
         instruction: Instruction object
         semantics: InstructionSemantics object
         env: Symbolic environment
-    """
-    # Get the appropriate postcondition function
-    postcondition_func = POSTCONDITION_MAP.get(instruction.opcode.lower())
 
-    # Apply postcondition if function exists
-    if postcondition_func:
+    Returns:
+        bool: True if postcondition was applied, False otherwise
+    """
+    # Look for postcondition function with case variations
+    opcode = instruction.opcode.lower()
+    postcondition_func = (POSTCONDITION_MAP.get(opcode) or
+                          POSTCONDITION_MAP.get(opcode.upper()) or
+                          POSTCONDITION_MAP.get(opcode.capitalize()))
+
+    if not postcondition_func:
+        return False
+
+    try:
+        # Apply postcondition based on number of operands
         if len(instruction.operands) == 0:
-            # No operands (e.g., nop, syscall)
             postcondition_func(env)
         elif len(instruction.operands) == 1:
-            # One operand (e.g., push, pop, neg)
             postcondition_func(env, instruction.operands[0])
-        elif len(instruction.operands) == 2:
-            # Two operands (e.g., mov, add, sub, and, xor)
+        elif len(instruction.operands) >= 2:
             postcondition_func(env, instruction.operands[0], instruction.operands[1])
-        # More operands could be handled here if needed
         return True
-
-    return False
+    except Exception as e:
+        print(f"Error applying postcondition for {instruction.opcode}: {e}")
+        return False
 
 
 def execute_trace(trace, semantics, solver_type='z3', verbose=False):
@@ -75,8 +81,10 @@ def execute_trace(trace, semantics, solver_type='z3', verbose=False):
         if verbose:
             print(f"\nProcessing instruction: {instruction}")
 
-        # Get semantics for this instruction
-        instr_sem = semantics.get(instruction.opcode.lower())
+        # Get semantics for this instruction - try multiple case variations
+        opcode = instruction.opcode.lower()
+        instr_sem = semantics.get(opcode) or semantics.get(opcode.upper()) or semantics.get(opcode.capitalize())
+
         if not instr_sem:
             print(f"Warning: No semantics found for {instruction.opcode}")
             # Use default semantics (precondition = 1)
