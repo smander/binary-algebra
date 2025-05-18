@@ -17,7 +17,7 @@ from postconditions import POSTCONDITION_MAP
 
 def apply_postcondition(instruction, semantics, env):
     """
-    Apply the postcondition for an instruction
+    Apply the postcondition for an instruction based on the semantics file
 
     Args:
         instruction: Instruction object
@@ -31,27 +31,52 @@ def apply_postcondition(instruction, semantics, env):
     if not semantics.postcondition:
         return False
 
-    # Look for postcondition function with case variations
-    opcode = instruction.opcode.lower()
-    postcondition_func = (POSTCONDITION_MAP.get(opcode) or
-                          POSTCONDITION_MAP.get(opcode.upper()) or
-                          POSTCONDITION_MAP.get(opcode.capitalize()))
-
-    if not postcondition_func:
-        return False
-
     try:
-        # Apply postcondition based on number of operands
-        if len(instruction.operands) == 0:
-            postcondition_func(env)
-        elif len(instruction.operands) == 1:
-            postcondition_func(env, instruction.operands[0])
-        elif len(instruction.operands) >= 2:
-            postcondition_func(env, instruction.operands[0], instruction.operands[1])
-        return True
+        # Parse the postcondition to extract the function name and arguments
+        postcondition = semantics.postcondition.strip()
+
+        # Check for function call format like "DST = sym_copy(SRC,DST)"
+        if '=' in postcondition:
+            # Split the assignment
+            dest, func_call = postcondition.split('=', 1)
+            dest = dest.strip()
+            func_call = func_call.strip()
+        else:
+            # No assignment, just a function call
+            func_call = postcondition
+
+        # Extract function name and arguments
+        if '(' in func_call and ')' in func_call:
+            func_name = func_call[:func_call.index('(')].strip()
+            args_str = func_call[func_call.index('(') + 1:func_call.rindex(')')].strip()
+            arg_names = [arg.strip() for arg in args_str.split(',')] if args_str else []
+
+            # Look up the function in POSTCONDITION_MAP
+            if func_name in POSTCONDITION_MAP:
+                postcondition_func = POSTCONDITION_MAP[func_name]
+
+                # Map semantic parameter names to actual instruction operands
+                if func_name == 'sym_copy' and len(arg_names) == 2 and len(instruction.operands) >= 2:
+                    # Handle sym_copy specially since it's commonly used
+                    # Usually called as sym_copy(SRC,DST) in semantics but needs (env, dest, source) in code
+                    postcondition_func(env, instruction.operands[0], instruction.operands[1])
+                    return True
+                elif len(instruction.operands) == 0:
+                    # No operands, just call the function with env
+                    postcondition_func(env)
+                    return True
+                elif len(instruction.operands) == 1:
+                    # One operand
+                    postcondition_func(env, instruction.operands[0])
+                    return True
+                elif len(instruction.operands) >= 2:
+                    # Two or more operands
+                    postcondition_func(env, instruction.operands[0], instruction.operands[1])
+                    return True
     except Exception as e:
         print(f"Error applying postcondition for {instruction.opcode}: {e}")
-        return False
+
+    return False
 
 
 def execute_trace(trace, semantics, solver_type='z3', verbose=False, use_symbolic_hex=True):
