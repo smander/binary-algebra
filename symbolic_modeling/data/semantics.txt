@@ -1,17 +1,17 @@
-mov (SRC,DST) : 1 -> DST = sym_copy(SRC,DST)
-lea (ADDR,DST) : 1 -> DST = sym_copy(*ADDR,DST)
+mov (SRC,DST) : 1 -> DST = BIN_COPY(SRC,DST)
+lea (ADDR,DST) : 1 -> DST = BIN_COPY(*ADDR,DST)
 syscall : 1 ->
 jmp : 1 ->
 endbr64 : 1 ->
 push : 1 ->
-sub : 1 ->
-test : 1 ->
+sub (DST,SRC) : 1 -> DST = BIN_SUB(DST,SRC)
+test (OP1,OP2) : 1 -> BIN_TEST(OP1,OP2)
 js : SF == 1 ->
-xor (DST,SRC) : 1 -> DST = sym_xor(DST,SRC)
+xor (DST,SRC) : 1 -> DST = BIN_XOR(DST,SRC)
 jne : ZF == 0 ->
-add (DST,SRC) : 1 -> DST = sym_add(DST,SRC)
+add (DST,SRC) : 1 -> DST = BIN_ADD(DST,SRC)
 pop : 1 ->
 nop : 1 ->
-neg : 1 ->
+neg (OP) : 1 ->
 jle : ZF == 1 ->
-and (DST,SRC) : 1 -> DST = sym_and(DST,SRC)
+and (DST,SRC) : 1 -> DST = BIN_AND(DST,SRC)

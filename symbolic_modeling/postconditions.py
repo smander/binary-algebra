@@ -1,80 +1,258 @@
 from z3 import *
 from constraint_generator import parse_operand
 
+"""
+Consolidated implementation of basic symbolic operations and instruction handlers
+"""
 
-def sym_copy(env, dest, source):
+
+#############################################################
+# Basic Symbolic Operations
+#############################################################
+
+def BIN_COPY(env, dest, source):
     """
-    Symbolic copy operation (BIN_COPY) from source to destination
+    Basic symbolic copy operation
+
+    Args:
+        env: Symbolic environment
+        dest: Destination operand (string or value)
+        source: Source operand (string or value)
+    """
+    # Parse source value
+    source_value = parse_value(source, env)
+
+    # Store the value
+    store_value(env, dest, source_value)
+
+
+def BIN_ADD(env, dest, source):
+    """
+    Basic symbolic addition operation
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    # Parse source operand
-    source_value, source_type = parse_operand(source, env)
+    dest_value = get_value(dest, env)
+    source_value = parse_value(source, env)
 
-    # Handle destination based on its type
-    if dest in env.REG_SIZES:
-        # Destination is a register
-        env.set_register(dest, source_value)
-    elif '[' in dest and ']' in dest:
-        # Destination is a memory reference
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        # Parse memory address
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        # Set memory at this address
-        env.set_memory(addr_value, source_value)
-    else:
-        raise ValueError(f"Unsupported destination operand format: {dest}")
+    # Perform addition
+    result = dest_value + source_value
+
+    # Store result
+    store_value(env, dest, result)
+
+    # Update flags
+    update_flags_after_add(env, dest_value, source_value, result)
 
 
-def sym_mov(env, dest, source):
+def BIN_SUB(env, dest, source):
     """
-    Implementation of MOV instruction
+    Basic symbolic subtraction operation
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    from constraint_generator import parse_operand
+    dest_value = get_value(dest, env)
+    source_value = parse_value(source, env)
 
-    # Parse source operand
-    source_value, source_type = parse_operand(source, env)
+    # Perform subtraction
+    result = dest_value - source_value
 
-    # Handle destination based on its type
-    if dest in env.REG_SIZES:
-        # Destination is a register
-        env.set_register(dest, source_value)
-    elif '[' in dest and ']' in dest:
-        # Destination is a memory reference
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        # Parse memory address
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        # Set memory at this address
-        env.set_memory(addr_value, source_value)
-    else:
-        raise ValueError(f"Unsupported destination operand format: {dest}")
+    # Store result
+    store_value(env, dest, result)
+
+    # Update flags
+    update_flags_after_sub(env, dest_value, source_value, result)
 
 
-def sym_lea(env, dest, source):
+def BIN_AND(env, dest, source):
     """
-    Implementation of LEA instruction
+    Basic symbolic AND operation
 
     Args:
         env: Symbolic environment
-        dest: Destination register
-        source: Source effective address
+        dest: Destination operand
+        source: Source operand
     """
-    # For LEA, we calculate the effective address but don't dereference it
-    if '[' in source and ']' in source:
-        address_expr = source[source.index('[') + 1:source.index(']')]
+    dest_value = get_value(dest, env)
+    source_value = parse_value(source, env)
 
-        # Parse components of the address
+    # Perform AND operation - Z3 will handle the symbolic rules:
+    # 0 & $ = 0
+    # 1 & $ = $
+    # $ & $ = $
+    result = dest_value & source_value
+
+    # Store result
+    store_value(env, dest, result)
+
+    # Update flags
+    update_flags_after_logical(env, result)
+
+
+def BIN_XOR(env, dest, source):
+    """
+    Basic symbolic XOR operation
+
+    Args:
+        env: Symbolic environment
+        dest: Destination operand
+        source: Source operand
+    """
+    dest_value = get_value(dest, env)
+    source_value = parse_value(source, env)
+
+    # Perform XOR operation - Z3 will handle the symbolic rules:
+    # 0 ^ $ = $
+    # 1 ^ $ = !$
+    # $ ^ $ = 0 (for same symbolic values)
+    result = dest_value ^ source_value
+
+    # Store result
+    store_value(env, dest, result)
+
+    # Update flags
+    update_flags_after_logical(env, result)
+
+
+def BIN_TEST(env, op1, op2):
+    """
+    Basic symbolic TEST operation (AND without storing result)
+
+    Args:
+        env: Symbolic environment
+        op1: First operand
+        op2: Second operand
+    """
+    op1_value = parse_value(op1, env)
+    op2_value = parse_value(op2, env)
+
+    # Perform AND but don't store
+    result = op1_value & op2_value
+
+    # Update flags only
+    update_flags_after_logical(env, result)
+
+
+def BIN_NEG(env, op):
+    """
+    Basic symbolic negation operation
+
+    Args:
+        env: Symbolic environment
+        op: Operand to negate
+    """
+    op_value = get_value(op, env)
+
+    # Perform two's complement negation
+    result = 0 - op_value
+
+    # Store result
+    store_value(env, op, result)
+
+    # Update flags
+    env.set_flag('ZF', result == 0)
+    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
+    env.set_flag('CF', result != 0)  # CF=0 only if operand=0
+
+    # OF=1 only if operand=MIN_INT
+    min_int = BitVecVal(1 << (op_value.size() - 1), op_value.size())
+    env.set_flag('OF', op_value == min_int)
+
+
+#############################################################
+# Helper Functions
+#############################################################
+
+def parse_value(operand, env):
+    """
+    Parse operand to get its value
+
+    Args:
+        operand: Operand to parse
+        env: Symbolic environment
+
+    Returns:
+        Z3 BitVec value
+    """
+    if not isinstance(operand, str):
+        return operand
+
+    # Handle address calculation for LEA
+    if operand.startswith('*'):
+        return calculate_address(operand[1:], env)
+
+    # Handle normal operand
+    value, _ = parse_operand(operand, env)
+    return value
+
+
+def get_value(operand, env):
+    """
+    Get value from a destination operand
+
+    Args:
+        operand: Destination operand
+        env: Symbolic environment
+
+    Returns:
+        Z3 BitVec current value
+    """
+    if not isinstance(operand, str):
+        return operand
+
+    if operand in env.REG_SIZES:
+        return env.get_register(operand)
+    else:
+        value, _ = parse_operand(operand, env)
+        return value
+
+
+def store_value(env, dest, value):
+    """
+    Store value to destination
+
+    Args:
+        env: Symbolic environment
+        dest: Destination operand
+        value: Value to store
+    """
+    if not isinstance(dest, str):
+        return
+
+    if dest in env.REG_SIZES:
+        env.set_register(dest, value)
+    elif '[' in dest and ']' in dest:
+        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
+        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
+        env.set_memory(addr_value, value)
+    else:
+        raise ValueError(f"Unsupported destination: {dest}")
+
+
+def calculate_address(addr_expr, env):
+    """
+    Calculate effective address from expression
+
+    Args:
+        addr_expr: Address expression
+        env: Symbolic environment
+
+    Returns:
+        Z3 BitVec address
+    """
+    if '[' in addr_expr and ']' in addr_expr:
+        addr_components = addr_expr[addr_expr.index('[') + 1:addr_expr.index(']')]
+
+        # Parse components (registers, constants)
         components = []
-        if '+' in address_expr:
-            for part in address_expr.split('+'):
+        if '+' in addr_components:
+            for part in addr_components.split('+'):
                 part = part.strip()
                 if part in env.REG_SIZES:
                     components.append(env.get_register(part))
@@ -84,254 +262,193 @@ def sym_lea(env, dest, source):
                     else:
                         value = int(part)
                     components.append(BitVecVal(value, 64))
-        elif address_expr in env.REG_SIZES:
-            components.append(env.get_register(address_expr))
+        elif '-' in addr_components:
+            # Handle subtraction in address calculation
+            parts = [p.strip() for p in addr_components.split('-')]
+            base_reg = env.get_register(parts[0])
 
-        # Calculate effective address
+            # Parse offset
+            offset_str = parts[1]
+            if offset_str.startswith('0x'):
+                offset = int(offset_str, 16)
+            else:
+                offset = int(offset_str)
+
+            return base_reg - BitVecVal(offset, 64)
+        else:
+            if addr_components in env.REG_SIZES:
+                components.append(env.get_register(addr_components))
+
+        # Calculate address by adding components
         if components:
             address = components[0]
             for component in components[1:]:
                 address = address + component
-        else:
-            # Default to symbolic address if we can't parse
-            address = env.create_fresh_symbol("lea_addr", 64)
+            return address
 
-        # Set destination register to the calculated address
-        if dest in env.REG_SIZES:
-            env.set_register(dest, address)
+    # Return symbolic address for unsupported expressions
+    return env.create_fresh_symbol("addr", 64)
+
+
+def update_flags_after_add(env, dest, source, result):
+    """
+    Update flags after addition
+
+    Args:
+        env: Symbolic environment
+        dest: Destination value
+        source: Source value
+        result: Result value
+    """
+    env.set_flag('ZF', result == 0)
+    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
+    env.set_flag('CF', ULT(result, dest))  # Carry if result < original (unsigned)
+    env.set_flag('OF', And(
+        Extract(dest.size() - 1, dest.size() - 1, dest) ==
+        Extract(source.size() - 1, source.size() - 1, source),
+        Extract(result.size() - 1, result.size() - 1, result) !=
+        Extract(dest.size() - 1, dest.size() - 1, dest)
+    ))  # Overflow if sign bit changes unexpectedly
+
+
+def update_flags_after_sub(env, dest, source, result):
+    """
+    Update flags after subtraction
+
+    Args:
+        env: Symbolic environment
+        dest: Destination value
+        source: Source value
+        result: Result value
+    """
+    env.set_flag('ZF', result == 0)
+    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
+    env.set_flag('CF', ULT(dest, source))  # Carry if dest < source (unsigned)
+    env.set_flag('OF', And(
+        Extract(dest.size() - 1, dest.size() - 1, dest) !=
+        Extract(source.size() - 1, source.size() - 1, source),
+        Extract(result.size() - 1, result.size() - 1, result) !=
+        Extract(dest.size() - 1, dest.size() - 1, dest)
+    ))  # Overflow if sign bit changes unexpectedly
+
+
+def update_flags_after_logical(env, result):
+    """
+    Update flags after logical operations (AND, OR, XOR)
+
+    Args:
+        env: Symbolic environment
+        result: Result value
+    """
+    env.set_flag('ZF', result == 0)
+    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
+    env.set_flag('CF', BoolVal(False))  # Logical ops clear CF
+    env.set_flag('OF', BoolVal(False))  # Logical ops clear OF
+
+
+#############################################################
+# Instruction implementations using basic operations
+#############################################################
+
+def sym_mov(env, dest, source):
+    """
+    Implementation of MOV instruction using basic operations
+
+    Args:
+        env: Symbolic environment
+        dest: Destination operand
+        source: Source operand
+    """
+    BIN_COPY(env, dest, source)
+
+
+def sym_lea(env, dest, source):
+    """
+    Implementation of LEA instruction using basic operations
+
+    Args:
+        env: Symbolic environment
+        dest: Destination register
+        source: Source effective address
+    """
+    # For LEA, the source is the address expression, we need to prefix with *
+    BIN_COPY(env, dest, f"*{source}")
 
 
 def sym_add(env, dest, source):
     """
-    Implementation of ADD instruction
+    Implementation of ADD instruction using basic operations
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    # Parse operands
-    if dest in env.REG_SIZES:
-        dest_value = env.get_register(dest)
-        dest_type = 'register'
-    else:
-        dest_value, dest_type = parse_operand(dest, env)
-
-    source_value, source_type = parse_operand(source, env)
-
-    # Perform addition
-    result = dest_value + source_value
-
-    # Update destination
-    if dest_type == 'register':
-        env.set_register(dest, result)
-    elif dest_type == 'memory':
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        env.set_memory(addr_value, result)
-
-    # Update flags
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    # Simplified carry and overflow flags
-    env.set_flag('CF', ULT(result, dest_value))  # Carry if result < original value (unsigned)
-    env.set_flag('OF', And(
-        Extract(dest_value.size() - 1, dest_value.size() - 1, dest_value) ==
-        Extract(source_value.size() - 1, source_value.size() - 1, source_value),
-        Extract(result.size() - 1, result.size() - 1, result) !=
-        Extract(dest_value.size() - 1, dest_value.size() - 1, dest_value)
-    ))  # Overflow if sign bit changes unexpectedly
+    BIN_ADD(env, dest, source)
 
 
 def sym_sub(env, dest, source):
     """
-    Implementation of SUB instruction
+    Implementation of SUB instruction using basic operations
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    # Parse operands - fix the logic to avoid referencing dest_type before it's defined
-    if dest in env.REG_SIZES:
-        dest_value = env.get_register(dest)
-        dest_type = 'register'
-    else:
-        dest_value, dest_type = parse_operand(dest, env)
-
-    source_value, source_type = parse_operand(source, env)
-
-    # Perform subtraction
-    result = dest_value - source_value
-
-    # Update destination
-    if dest_type == 'register':
-        env.set_register(dest, result)
-    elif dest_type == 'memory':
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        env.set_memory(addr_value, result)
-
-    # Update flags
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    # Simplified carry and overflow flags
-    env.set_flag('CF', ULT(dest_value, source_value))  # Carry if dest < source (unsigned)
-    env.set_flag('OF', And(
-        Extract(dest_value.size() - 1, dest_value.size() - 1, dest_value) !=
-        Extract(source_value.size() - 1, source_value.size() - 1, source_value),
-        Extract(result.size() - 1, result.size() - 1, result) !=
-        Extract(dest_value.size() - 1, dest_value.size() - 1, dest_value)
-    ))  # Overflow if sign bit changes unexpectedly
+    BIN_SUB(env, dest, source)
 
 
 def sym_and(env, dest, source):
     """
-    Implementation of symbolic AND operation (BIN_AND)
-
-    Rules:
-    - 0 & $ = 0 (any bit AND with 0 is 0)
-    - 1 & $ = $ (any bit AND with 1 preserves the bit)
-    - $ & $ = $ (symbolic AND symbolic remains symbolic)
+    Implementation of symbolic AND operation using basic operations
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    # Parse operands - use the same correct pattern as in sym_sub
-    if dest in env.REG_SIZES:
-        dest_value = env.get_register(dest)
-        dest_type = 'register'
-    else:
-        dest_value, dest_type = parse_operand(dest, env)
-
-    source_value, source_type = parse_operand(source, env)
-
-    # Perform symbolic AND operation
-    # Z3's bitwise operators already handle the symbolic rules correctly
-    result = dest_value & source_value
-
-    # Update destination
-    if dest_type == 'register':
-        env.set_register(dest, result)
-    elif dest_type == 'memory':
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        # Parse memory address
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        # Set memory at this address
-        env.set_memory(addr_value, result)
-
-    # Update flags
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    env.set_flag('OF', BoolVal(False))  # AND clears OF
-    env.set_flag('CF', BoolVal(False))  # AND clears CF
+    BIN_AND(env, dest, source)
 
 
 def sym_xor(env, dest, source):
     """
-    Implementation of symbolic XOR operation (BIN_XOR)
-
-    Rules:
-    - 0 ^ $ = $ (any bit XOR with 0 preserves the bit)
-    - 1 ^ $ = !$ (any bit XOR with 1 inverts the bit)
-    - $ ^ $ = 0 (same symbolic bits XOR to 0)
+    Implementation of symbolic XOR operation using basic operations
 
     Args:
         env: Symbolic environment
         dest: Destination operand
         source: Source operand
     """
-    # Parse operands - use the same correct pattern as in sym_sub
-    if dest in env.REG_SIZES:
-        dest_value = env.get_register(dest)
-        dest_type = 'register'
-    else:
-        dest_value, dest_type = parse_operand(dest, env)
-
-    source_value, source_type = parse_operand(source, env)
-
-    # Perform symbolic XOR operation
-    # Z3's bitwise operators already handle the symbolic rules correctly
-    result = dest_value ^ source_value
-
-    # Update destination
-    if dest_type == 'register':
-        env.set_register(dest, result)
-    elif dest_type == 'memory':
-        mem_ref = dest[dest.index('[') + 1:dest.index(']')]
-        # Parse memory address
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        # Set memory at this address
-        env.set_memory(addr_value, result)
-
-    # Update flags
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    env.set_flag('OF', BoolVal(False))  # XOR clears OF
-    env.set_flag('CF', BoolVal(False))  # XOR clears CF
+    BIN_XOR(env, dest, source)
 
 
 def sym_test(env, op1, op2):
     """
-    Implementation of TEST instruction
+    Implementation of TEST instruction using basic operations
 
     Args:
         env: Symbolic environment
         op1: First operand
         op2: Second operand
     """
-    # Parse operands
-    op1_value, op1_type = parse_operand(op1, env)
-    op2_value, op2_type = parse_operand(op2, env)
-
-    # Perform AND operation (but don't store result)
-    result = op1_value & op2_value
-
-    # Update flags only
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    env.set_flag('OF', BoolVal(False))  # TEST clears OF
-    env.set_flag('CF', BoolVal(False))  # TEST clears CF
+    BIN_TEST(env, op1, op2)
 
 
 def sym_neg(env, operand):
     """
-    Implementation of NEG instruction
+    Implementation of NEG instruction using basic operations
 
     Args:
         env: Symbolic environment
         operand: Operand to negate
     """
-    # Parse operand
-    if operand in env.REG_SIZES:
-        value = env.get_register(operand)
-        operand_type = 'register'
-    else:
-        value, operand_type = parse_operand(operand, env)
+    BIN_NEG(env, operand)
 
-    # Calculate two's complement negation
-    result = 0 - value
 
-    # Update operand
-    if operand_type == 'register':
-        env.set_register(operand, result)
-    elif operand_type == 'memory':
-        mem_ref = operand[operand.index('[') + 1:operand.index(']')]
-        addr_value, _ = parse_operand(f"[{mem_ref}]", env)
-        env.set_memory(addr_value, result)
-
-    # Update flags
-    env.set_flag('ZF', result == 0)
-    env.set_flag('SF', Extract(result.size() - 1, result.size() - 1, result) == 1)
-    env.set_flag('CF', result != 0)  # CF=0 only if operand=0
-
-    # OF=1 only if operand=MIN_INT (negating would overflow)
-    # For 64-bit, that's 0x8000000000000000 (most negative value)
-    min_int = BitVecVal(1 << (value.size() - 1), value.size())
-    env.set_flag('OF', value == min_int)
-
+#############################################################
+# Existing instruction handlers that we'll keep
+#############################################################
 
 def sym_push(env, operand):
     """
@@ -475,7 +592,10 @@ def sym_nop(env):
     pass
 
 
+#############################################################
 # Map of instruction opcodes to their postcondition functions
+#############################################################
+
 POSTCONDITION_MAP = {
     'mov': sym_mov,
     'lea': sym_lea,
