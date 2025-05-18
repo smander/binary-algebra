@@ -187,10 +187,25 @@ def parse_value(operand, env):
     if operand.startswith('*'):
         return calculate_address(operand[1:], env)
 
+    # Handle arithmetic expressions with +
+    if '+' in operand and not (('[' in operand and ']' in operand)):
+        parts = [p.strip() for p in operand.split('+')]
+        result = parse_value(parts[0], env)
+        for part in parts[1:]:
+            result = result + parse_value(part, env)
+        return result
+
+    # Handle arithmetic expressions with *
+    if '*' in operand and not operand.startswith('*') and not (('[' in operand and ']' in operand)):
+        parts = [p.strip() for p in operand.split('*')]
+        result = parse_value(parts[0], env)
+        for part in parts[1:]:
+            result = result * parse_value(part, env)
+        return result
+
     # Handle normal operand
     value, _ = parse_operand(operand, env)
     return value
-
 
 def get_value(operand, env):
     """
@@ -249,7 +264,58 @@ def calculate_address(addr_expr, env):
     if '[' in addr_expr and ']' in addr_expr:
         addr_components = addr_expr[addr_expr.index('[') + 1:addr_expr.index(']')]
 
-        # Parse components (registers, constants)
+        # First, handle any multiplication within the address
+        # For expressions like [base + index*scale + disp]
+        if '*' in addr_components:
+            new_components = []
+            for component in addr_components.split('+'):
+                component = component.strip()
+                if '*' in component:
+                    # Handle index*scale
+                    mul_parts = component.split('*')
+                    if len(mul_parts) == 2:
+                        index = mul_parts[0].strip()
+                        scale = mul_parts[1].strip()
+
+                        # Get index value
+                        if index in env.REG_SIZES:
+                            index_val = env.get_register(index)
+                        else:
+                            # Try parsing as a number
+                            try:
+                                if index.startswith('0x'):
+                                    index_val = BitVecVal(int(index, 16), 64)
+                                else:
+                                    index_val = BitVecVal(int(index), 64)
+                            except ValueError:
+                                # Use symbolic value if parsing fails
+                                index_val = env.create_fresh_symbol(f"index_{index}", 64)
+
+                        # Get scale value
+                        try:
+                            if scale.startswith('0x'):
+                                scale_val = BitVecVal(int(scale, 16), 64)
+                            else:
+                                scale_val = BitVecVal(int(scale), 64)
+                        except ValueError:
+                            if scale in env.REG_SIZES:
+                                scale_val = env.get_register(scale)
+                            else:
+                                # Use symbolic value if parsing fails
+                                scale_val = env.create_fresh_symbol(f"scale_{scale}", 64)
+
+                        # Add the product to components
+                        new_components.append(index_val * scale_val)
+                    else:
+                        # Just add the original if parsing fails
+                        new_components.append(component)
+                else:
+                    new_components.append(component)
+
+            # Replace addr_components with the modified version
+            addr_components = ' + '.join([str(c) for c in new_components])
+
+        # Now handle addition and subtraction
         components = []
         if '+' in addr_components:
             for part in addr_components.split('+'):
@@ -262,22 +328,33 @@ def calculate_address(addr_expr, env):
                     else:
                         value = int(part)
                     components.append(BitVecVal(value, 64))
+                else:
+                    # If we can't parse, add a symbolic value
+                    components.append(env.create_fresh_symbol(f"addr_part_{part}", 64))
         elif '-' in addr_components:
             # Handle subtraction in address calculation
             parts = [p.strip() for p in addr_components.split('-')]
-            base_reg = env.get_register(parts[0])
+            base_reg = env.get_register(parts[0]) if parts[0] in env.REG_SIZES else env.create_fresh_symbol(
+                f"base_{parts[0]}", 64)
 
             # Parse offset
             offset_str = parts[1]
             if offset_str.startswith('0x'):
                 offset = int(offset_str, 16)
-            else:
+            elif offset_str.isdigit():
                 offset = int(offset_str)
+            elif offset_str in env.REG_SIZES:
+                return base_reg - env.get_register(offset_str)
+            else:
+                offset = env.create_fresh_symbol(f"offset_{offset_str}", 64)
 
-            return base_reg - BitVecVal(offset, 64)
+            return base_reg - BitVecVal(offset, 64) if isinstance(offset, int) else base_reg - offset
         else:
             if addr_components in env.REG_SIZES:
                 components.append(env.get_register(addr_components))
+            else:
+                # If we can't parse, add a symbolic value
+                components.append(env.create_fresh_symbol(f"addr_{addr_components}", 64))
 
         # Calculate address by adding components
         if components:
