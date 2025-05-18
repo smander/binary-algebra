@@ -38,6 +38,8 @@ def sym_mov(env, dest, source):
         dest: Destination operand
         source: Source operand
     """
+    from constraint_generator import parse_operand
+
     # Parse source operand
     source_value, source_type = parse_operand(source, env)
 

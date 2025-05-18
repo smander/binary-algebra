@@ -30,18 +30,32 @@ def parse_operand(operand, env):
     if '[' in operand and ']' in operand:
         mem_ref = operand[operand.index('[') + 1:operand.index(']')]
 
-        # Simple memory reference parsing - this would need to be expanded for complex addressing
+        # Handle memory reference parsing with support for hex values
         if '+' in mem_ref:
-            # Format like [rbx + 4]
+            # Format like [rbx + 4] or [rip + 0x9cdab]
             parts = [p.strip() for p in mem_ref.split('+')]
             base_reg = env.get_register(parts[0])
-            offset = int(parts[1]) if parts[1].startswith('0x') else int(parts[1])
+
+            # Parse offset value with hex support
+            offset_str = parts[1]
+            if offset_str.startswith('0x'):
+                offset = int(offset_str, 16)
+            else:
+                offset = int(offset_str)
+
             address = base_reg + BitVecVal(offset, 64)
         elif '-' in mem_ref:
             # Format like [rax - 8]
             parts = [p.strip() for p in mem_ref.split('-')]
             base_reg = env.get_register(parts[0])
-            offset = int(parts[1]) if parts[1].startswith('0x') else int(parts[1])
+
+            # Parse offset value with hex support
+            offset_str = parts[1]
+            if offset_str.startswith('0x'):
+                offset = int(offset_str, 16)
+            else:
+                offset = int(offset_str)
+
             address = base_reg - BitVecVal(offset, 64)
         else:
             # Format like [rax]

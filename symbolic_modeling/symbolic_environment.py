@@ -223,8 +223,12 @@ class SymbolicEnvironment:
 
         if self.memory:
             result += "\nMemory:\n"
-            for addr in sorted(self.memory.keys()):
+            # Can't sort symbolic keys directly, so just iterate
+            for addr in self.memory.keys():
+                # Use string representation to avoid sorting issues
                 result += f"  {addr}: {self.memory[addr]}\n"
+
+        return result
 
         return result
 
