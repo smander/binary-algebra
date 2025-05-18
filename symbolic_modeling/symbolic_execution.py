@@ -29,49 +29,39 @@ def apply_postcondition(instruction, semantics, env):
     """
     # Check if semantics has a postcondition
     if not semantics.postcondition:
+        print(f"No postcondition for {instruction.opcode}")
         return False
 
     try:
-        # Parse the postcondition to extract the function name and arguments
-        postcondition = semantics.postcondition.strip()
+        # Get the instruction opcode for function lookup
+        opcode = instruction.opcode.lower()
 
-        # Check for function call format like "DST = function_name(arg1,arg2)"
-        if '=' in postcondition:
-            # Split the assignment
-            dest, func_call = postcondition.split('=', 1)
-            dest = dest.strip()
-            func_call = func_call.strip()
-        else:
-            # No assignment, just a function call
-            func_call = postcondition
+        # Try to look up postcondition function directly by opcode
+        postcondition_func = POSTCONDITION_MAP.get(opcode)
 
-        # Extract function name and arguments
-        if '(' in func_call and ')' in func_call:
-            func_name = func_call[:func_call.index('(')].strip()
-            args_str = func_call[func_call.index('(') + 1:func_call.rindex(')')].strip()
-            arg_names = [arg.strip() for arg in args_str.split(',')] if args_str else []
+        # If not found, try case variations
+        if not postcondition_func:
+            postcondition_func = (POSTCONDITION_MAP.get(opcode.upper()) or
+                                  POSTCONDITION_MAP.get(opcode.capitalize()))
 
-            # Look up the function in POSTCONDITION_MAP
-            if func_name in POSTCONDITION_MAP:
-                postcondition_func = POSTCONDITION_MAP[func_name]
+        if not postcondition_func:
+            print(f"No postcondition function found for {opcode}")
+            return False
 
-                # Call the function with env and appropriate operands
-                if len(instruction.operands) == 0:
-                    # No operands
-                    postcondition_func(env)
-                    return True
-                elif len(instruction.operands) == 1:
-                    # One operand
-                    postcondition_func(env, instruction.operands[0])
-                    return True
-                elif len(instruction.operands) >= 2:
-                    # Two or more operands
-                    postcondition_func(env, instruction.operands[0], instruction.operands[1])
-                    return True
+        # Apply postcondition based on number of operands
+        if len(instruction.operands) == 0:
+            postcondition_func(env)
+        elif len(instruction.operands) == 1:
+            postcondition_func(env, instruction.operands[0])
+        elif len(instruction.operands) >= 2:
+            postcondition_func(env, instruction.operands[0], instruction.operands[1])
+
+        return True
     except Exception as e:
         print(f"Error applying postcondition for {instruction.opcode}: {e}")
-
-    return False
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 def execute_trace(trace, semantics, solver_type='z3', verbose=False, use_symbolic_hex=True):
@@ -134,8 +124,11 @@ def execute_trace(trace, semantics, solver_type='z3', verbose=False, use_symboli
 
             # Apply postcondition
             post_applied = apply_postcondition(instruction, instr_sem, env)
-            if verbose and post_applied:
-                print(f"Applied postcondition for {instruction.opcode}")
+            if verbose:
+                if post_applied:
+                    print(f"Applied postcondition for {instruction.opcode}")
+                else:
+                    print(f"No postcondition applied for {instruction.opcode}")
 
             # Continue to next instruction with updated environment
         else:
