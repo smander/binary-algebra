@@ -35,7 +35,7 @@ def apply_postcondition(instruction, semantics, env):
         # Parse the postcondition to extract the function name and arguments
         postcondition = semantics.postcondition.strip()
 
-        # Check for function call format like "DST = sym_copy(SRC,DST)"
+        # Check for function call format like "DST = function_name(arg1,arg2)"
         if '=' in postcondition:
             # Split the assignment
             dest, func_call = postcondition.split('=', 1)
@@ -55,14 +55,9 @@ def apply_postcondition(instruction, semantics, env):
             if func_name in POSTCONDITION_MAP:
                 postcondition_func = POSTCONDITION_MAP[func_name]
 
-                # Map semantic parameter names to actual instruction operands
-                if func_name == 'sym_copy' and len(arg_names) == 2 and len(instruction.operands) >= 2:
-                    # Handle sym_copy specially since it's commonly used
-                    # Usually called as sym_copy(SRC,DST) in semantics but needs (env, dest, source) in code
-                    postcondition_func(env, instruction.operands[0], instruction.operands[1])
-                    return True
-                elif len(instruction.operands) == 0:
-                    # No operands, just call the function with env
+                # Call the function with env and appropriate operands
+                if len(instruction.operands) == 0:
+                    # No operands
                     postcondition_func(env)
                     return True
                 elif len(instruction.operands) == 1:
