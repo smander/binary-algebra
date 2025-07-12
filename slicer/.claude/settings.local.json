@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 30 python3 slicer.py data/behavior_algebra_20250702_120645.txt \"mov.X1;add.X2;mov.X3\" 2 >& 1)",
+      "Bash(python3:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

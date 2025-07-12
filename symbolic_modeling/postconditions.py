@@ -221,7 +221,7 @@ def get_value(operand, env):
     if not isinstance(operand, str):
         return operand
 
-    if operand in env.REG_SIZES:
+    if operand in env.REG_SIZES or operand in env.REG_PARENT:
         return env.get_register(operand)
     else:
         value, _ = parse_operand(operand, env)
@@ -240,7 +240,7 @@ def store_value(env, dest, value):
     if not isinstance(dest, str):
         return
 
-    if dest in env.REG_SIZES:
+    if dest in env.REG_SIZES or dest in env.REG_PARENT:
         env.set_register(dest, value)
     elif '[' in dest and ']' in dest:
         mem_ref = dest[dest.index('[') + 1:dest.index(']')]

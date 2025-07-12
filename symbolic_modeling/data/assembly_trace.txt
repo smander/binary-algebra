@@ -1,0 +1,6 @@
+0x100000d71: lea rcx, [rbp - 0x60]
+0x100000d75: mov rdi, qword ptr [rbp - 0x20]
+0x100000d79: add rdi, 2
+0x100000d80: movzx edx, word ptr [rbp - 0x12]
+0x100000d84: sub edx, 1
+0x100000d87: movsxd rdx, edx

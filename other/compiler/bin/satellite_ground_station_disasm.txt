@@ -1,0 +1,717 @@
+
+bin/satellite_ground_station:	file format Mach-O 64-bit x86-64
+
+
+Disassembly of section __TEXT,__text:
+
+0000000100000d20 _process_attitude_control:
+100000d20: 55                          	pushq	%rbp
+100000d21: 48 89 e5                    	movq	%rsp, %rbp
+100000d24: 48 81 ec d0 00 00 00        	subq	$208, %rsp
+100000d2b: 40 88 7d ff                 	movb	%dil, -1(%rbp)
+100000d2f: 48 89 75 f0                 	movq	%rsi, -16(%rbp)
+100000d33: 66 89 55 ee                 	movw	%dx, -18(%rbp)
+100000d37: 48 8b 45 f0                 	movq	-16(%rbp), %rax
+100000d3b: 48 89 45 e0                 	movq	%rax, -32(%rbp)
+100000d3f: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100000d43: 48 8d 3d 76 0d 00 00        	leaq	3446(%rip), %rdi
+100000d4a: b0 00                       	movb	$0, %al
+100000d4c: e8 09 0c 00 00              	callq	3081 <satellite_ground_station.c+0x10000195a>
+100000d51: 0f b7 75 ee                 	movzwl	-18(%rbp), %esi
+100000d55: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000d59: 0f b6 51 01                 	movzbl	1(%rcx), %edx
+100000d5d: 48 8d 3d 8c 0d 00 00        	leaq	3468(%rip), %rdi
+100000d64: 89 85 48 ff ff ff           	movl	%eax, -184(%rbp)
+100000d6a: b0 00                       	movb	$0, %al
+100000d6c: e8 e9 0b 00 00              	callq	3049 <satellite_ground_station.c+0x10000195a>
+100000d71: 48 8d 4d a0                 	leaq	-96(%rbp), %rcx
+100000d75: 48 8b 7d e0                 	movq	-32(%rbp), %rdi
+100000d79: 48 81 c7 02 00 00 00        	addq	$2, %rdi
+100000d80: 0f b7 55 ee                 	movzwl	-18(%rbp), %edx
+100000d84: 83 ea 01                    	subl	$1, %edx
+100000d87: 48 63 d2                    	movslq	%edx, %rdx
+100000d8a: 48 89 bd 40 ff ff ff        	movq	%rdi, -192(%rbp)
+100000d91: 48 89 cf                    	movq	%rcx, %rdi
+100000d94: 48 8b b5 40 ff ff ff        	movq	-192(%rbp), %rsi
+100000d9b: 89 85 3c ff ff ff           	movl	%eax, -196(%rbp)
+100000da1: e8 a2 0b 00 00              	callq	2978 <satellite_ground_station.c+0x100001948>
+100000da6: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000daa: 48 8b 51 12                 	movq	18(%rcx), %rdx
+100000dae: 48 89 55 b0                 	movq	%rdx, -80(%rbp)
+100000db2: 8b 41 1a                    	movl	26(%rcx), %eax
+100000db5: 89 45 b8                    	movl	%eax, -72(%rbp)
+100000db8: 48 8b 0d d1 0c 00 00        	movq	3281(%rip), %rcx
+100000dbf: 48 89 8d 50 ff ff ff        	movq	%rcx, -176(%rbp)
+100000dc6: 48 8b 0d cb 0c 00 00        	movq	3275(%rip), %rcx
+100000dcd: 48 89 8d 58 ff ff ff        	movq	%rcx, -168(%rbp)
+100000dd4: 48 8b 0d c5 0c 00 00        	movq	3269(%rip), %rcx
+100000ddb: 48 89 8d 60 ff ff ff        	movq	%rcx, -160(%rbp)
+100000de2: 48 8b 0d bf 0c 00 00        	movq	3263(%rip), %rcx
+100000de9: 48 89 8d 68 ff ff ff        	movq	%rcx, -152(%rbp)
+100000df0: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000df4: 0f b6 41 20                 	movzbl	32(%rcx), %eax
+100000df8: 89 c1                       	movl	%eax, %ecx
+100000dfa: f3 0f 10 84 8d 50 ff ff ff  	movss	-176(%rbp,%rcx,4), %xmm0
+100000e03: f3 0f 11 85 4c ff ff ff     	movss	%xmm0, -180(%rbp)
+100000e0b: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100000e0f: f3 0f 10 85 4c ff ff ff     	movss	-180(%rbp), %xmm0
+100000e17: f3 0f 5a c0                 	cvtss2sd	%xmm0, %xmm0
+100000e1b: 48 8d 3d fb 0c 00 00        	leaq	3323(%rip), %rdi
+100000e22: b0 01                       	movb	$1, %al
+100000e24: e8 31 0b 00 00              	callq	2865 <satellite_ground_station.c+0x10000195a>
+100000e29: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100000e2d: 83 fe 10                    	cmpl	$16, %esi
+100000e30: 0f 8d 42 00 00 00           	jge	66 <_process_attitude_control+0x158>
+100000e36: 0f b6 45 ff                 	movzbl	-1(%rbp), %eax
+100000e3a: 89 c1                       	movl	%eax, %ecx
+100000e3c: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100000e43: 48 8d 15 56 22 00 00        	leaq	8790(%rip), %rdx
+100000e4a: 48 89 d6                    	movq	%rdx, %rsi
+100000e4d: 48 01 ce                    	addq	%rcx, %rsi
+100000e50: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000e54: 48 8b 79 02                 	movq	2(%rcx), %rdi
+100000e58: 48 89 7e 2c                 	movq	%rdi, 44(%rsi)
+100000e5c: 48 8b 49 0a                 	movq	10(%rcx), %rcx
+100000e60: 48 89 4e 34                 	movq	%rcx, 52(%rsi)
+100000e64: 0f b6 45 ff                 	movzbl	-1(%rbp), %eax
+100000e68: 89 c1                       	movl	%eax, %ecx
+100000e6a: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100000e71: 48 01 ca                    	addq	%rcx, %rdx
+100000e74: c6 42 11 02                 	movb	$2, 17(%rdx)
+100000e78: 48 81 c4 d0 00 00 00        	addq	$208, %rsp
+100000e7f: 5d                          	popq	%rbp
+100000e80: c3                          	retq
+100000e81: 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+100000e8b: 0f 1f 44 00 00              	nopl	(%rax,%rax)
+
+0000000100000e90 _process_orbit_maneuver:
+100000e90: 55                          	pushq	%rbp
+100000e91: 48 89 e5                    	movq	%rsp, %rbp
+100000e94: 48 81 ec d0 01 00 00        	subq	$464, %rsp
+100000e9b: 40 88 7d ff                 	movb	%dil, -1(%rbp)
+100000e9f: 48 89 75 f0                 	movq	%rsi, -16(%rbp)
+100000ea3: 66 89 55 ee                 	movw	%dx, -18(%rbp)
+100000ea7: 48 8b 45 f0                 	movq	-16(%rbp), %rax
+100000eab: 48 89 45 e0                 	movq	%rax, -32(%rbp)
+100000eaf: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100000eb3: 48 8d 3d 9e 0c 00 00        	leaq	3230(%rip), %rdi
+100000eba: b0 00                       	movb	$0, %al
+100000ebc: e8 99 0a 00 00              	callq	2713 <satellite_ground_station.c+0x10000195a>
+100000ec1: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000ec5: 0f b6 71 01                 	movzbl	1(%rcx), %esi
+100000ec9: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000ecd: 0f b7 51 12                 	movzwl	18(%rcx), %edx
+100000ed1: 48 8d 3d ae 0c 00 00        	leaq	3246(%rip), %rdi
+100000ed8: 89 85 48 fe ff ff           	movl	%eax, -440(%rbp)
+100000ede: b0 00                       	movb	$0, %al
+100000ee0: e8 75 0a 00 00              	callq	2677 <satellite_ground_station.c+0x10000195a>
+100000ee5: 48 8d bd 60 fe ff ff        	leaq	-416(%rbp), %rdi
+100000eec: 0f b6 55 ff                 	movzbl	-1(%rbp), %edx
+100000ef0: 89 d1                       	movl	%edx, %ecx
+100000ef2: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100000ef9: 4c 8d 05 a0 21 00 00        	leaq	8608(%rip), %r8
+100000f00: 49 01 c8                    	addq	%rcx, %r8
+100000f03: 49 81 c0 01 00 00 00        	addq	$1, %r8
+100000f0a: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000f0e: 0f b7 49 12                 	movzwl	18(%rcx), %ecx
+100000f12: 48 8d 35 a3 0c 00 00        	leaq	3235(%rip), %rsi
+100000f19: 4c 89 c2                    	movq	%r8, %rdx
+100000f1c: 89 85 44 fe ff ff           	movl	%eax, -444(%rbp)
+100000f22: b0 00                       	movb	$0, %al
+100000f24: e8 4f 0a 00 00              	callq	2639 <satellite_ground_station.c+0x100001978>
+100000f29: 48 8d 95 e0 fe ff ff        	leaq	-288(%rbp), %rdx
+100000f30: 48 8b 75 e0                 	movq	-32(%rbp), %rsi
+100000f34: 48 81 c6 02 00 00 00        	addq	$2, %rsi
+100000f3b: 0f b7 4d ee                 	movzwl	-18(%rbp), %ecx
+100000f3f: 83 e9 05                    	subl	$5, %ecx
+100000f42: 48 63 f9                    	movslq	%ecx, %rdi
+100000f45: 48 89 bd 38 fe ff ff        	movq	%rdi, -456(%rbp)
+100000f4c: 48 89 d7                    	movq	%rdx, %rdi
+100000f4f: 48 8b 95 38 fe ff ff        	movq	-456(%rbp), %rdx
+100000f56: 89 85 34 fe ff ff           	movl	%eax, -460(%rbp)
+100000f5c: e8 e7 09 00 00              	callq	2535 <satellite_ground_station.c+0x100001948>
+100000f61: 48 8b 15 48 0b 00 00        	movq	2888(%rip), %rdx
+100000f68: 48 89 95 50 fe ff ff        	movq	%rdx, -432(%rbp)
+100000f6f: 48 8b 15 42 0b 00 00        	movq	2882(%rip), %rdx
+100000f76: 48 89 95 58 fe ff ff        	movq	%rdx, -424(%rbp)
+100000f7d: 48 8b 55 e0                 	movq	-32(%rbp), %rdx
+100000f81: 0f b6 42 14                 	movzbl	20(%rdx), %eax
+100000f85: 89 c2                       	movl	%eax, %edx
+100000f87: f3 0f 10 84 95 50 fe ff ff  	movss	-432(%rbp,%rdx,4), %xmm0
+100000f90: f3 0f 11 85 4c fe ff ff     	movss	%xmm0, -436(%rbp)
+100000f98: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100000f9c: f3 0f 10 85 4c fe ff ff     	movss	-436(%rbp), %xmm0
+100000fa4: f3 0f 5a c0                 	cvtss2sd	%xmm0, %xmm0
+100000fa8: 48 8d 3d 3d 0c 00 00        	leaq	3133(%rip), %rdi
+100000faf: b0 01                       	movb	$1, %al
+100000fb1: e8 a4 09 00 00              	callq	2468 <satellite_ground_station.c+0x10000195a>
+100000fb6: 0f b6 4d ff                 	movzbl	-1(%rbp), %ecx
+100000fba: 83 f9 10                    	cmpl	$16, %ecx
+100000fbd: 0f 8d 29 00 00 00           	jge	41 <_process_orbit_maneuver+0x15c>
+100000fc3: 0f b6 45 ff                 	movzbl	-1(%rbp), %eax
+100000fc7: 89 c1                       	movl	%eax, %ecx
+100000fc9: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100000fd0: 48 8d 15 c9 20 00 00        	leaq	8393(%rip), %rdx
+100000fd7: 48 01 ca                    	addq	%rcx, %rdx
+100000fda: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100000fde: 48 8b 71 02                 	movq	2(%rcx), %rsi
+100000fe2: 48 89 72 20                 	movq	%rsi, 32(%rdx)
+100000fe6: 8b 41 0a                    	movl	10(%rcx), %eax
+100000fe9: 89 42 28                    	movl	%eax, 40(%rdx)
+100000fec: 48 81 c4 d0 01 00 00        	addq	$464, %rsp
+100000ff3: 5d                          	popq	%rbp
+100000ff4: c3                          	retq
+100000ff5: 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+100000fff: 90                          	nop
+
+0000000100001000 _process_payload_control:
+100001000: 55                          	pushq	%rbp
+100001001: 48 89 e5                    	movq	%rsp, %rbp
+100001004: 48 81 ec c0 00 00 00        	subq	$192, %rsp
+10000100b: 40 88 7d ff                 	movb	%dil, -1(%rbp)
+10000100f: 48 89 75 f0                 	movq	%rsi, -16(%rbp)
+100001013: 66 89 55 ee                 	movw	%dx, -18(%rbp)
+100001017: 48 8b 45 f0                 	movq	-16(%rbp), %rax
+10000101b: 48 89 45 e0                 	movq	%rax, -32(%rbp)
+10000101f: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100001023: 48 8d 3d f1 0b 00 00        	leaq	3057(%rip), %rdi
+10000102a: b0 00                       	movb	$0, %al
+10000102c: e8 29 09 00 00              	callq	2345 <satellite_ground_station.c+0x10000195a>
+100001031: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100001035: 0f b6 71 01                 	movzbl	1(%rcx), %esi
+100001039: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+10000103d: 0f b6 51 02                 	movzbl	2(%rcx), %edx
+100001041: 48 8d 3d 02 0c 00 00        	leaq	3074(%rip), %rdi
+100001048: 89 85 54 ff ff ff           	movl	%eax, -172(%rbp)
+10000104e: b0 00                       	movb	$0, %al
+100001050: e8 05 09 00 00              	callq	2309 <satellite_ground_station.c+0x10000195a>
+100001055: 48 8d 4d 80                 	leaq	-128(%rbp), %rcx
+100001059: 48 8d 7d c0                 	leaq	-64(%rbp), %rdi
+10000105d: 4c 8b 45 e0                 	movq	-32(%rbp), %r8
+100001061: 49 81 c0 09 00 00 00        	addq	$9, %r8
+100001068: 0f b7 55 ee                 	movzwl	-18(%rbp), %edx
+10000106c: 83 ea 0f                    	subl	$15, %edx
+10000106f: 48 63 d2                    	movslq	%edx, %rdx
+100001072: 4c 89 c6                    	movq	%r8, %rsi
+100001075: 89 85 50 ff ff ff           	movl	%eax, -176(%rbp)
+10000107b: 48 89 8d 48 ff ff ff        	movq	%rcx, -184(%rbp)
+100001082: e8 c1 08 00 00              	callq	2241 <satellite_ground_station.c+0x100001948>
+100001087: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+10000108b: 48 81 c1 11 00 00 00        	addq	$17, %rcx
+100001092: 48 8b bd 48 ff ff ff        	movq	-184(%rbp), %rdi
+100001099: 48 89 ce                    	movq	%rcx, %rsi
+10000109c: e8 dd 08 00 00              	callq	2269 <satellite_ground_station.c+0x10000197e>
+1000010a1: 48 8b 0d 68 0f 00 00        	movq	3944(%rip), %rcx
+1000010a8: 48 89 8d 60 ff ff ff        	movq	%rcx, -160(%rbp)
+1000010af: 48 8b 0d 62 0f 00 00        	movq	3938(%rip), %rcx
+1000010b6: 48 89 8d 68 ff ff ff        	movq	%rcx, -152(%rbp)
+1000010bd: 48 8b 0d 5c 0f 00 00        	movq	3932(%rip), %rcx
+1000010c4: 48 89 8d 70 ff ff ff        	movq	%rcx, -144(%rbp)
+1000010cb: 48 8b 0d 56 0f 00 00        	movq	3926(%rip), %rcx
+1000010d2: 48 89 8d 78 ff ff ff        	movq	%rcx, -136(%rbp)
+1000010d9: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+1000010dd: 44 0f b6 49 01              	movzbl	1(%rcx), %r9d
+1000010e2: 44 89 c9                    	movl	%r9d, %ecx
+1000010e5: 48 8b 8c cd 60 ff ff ff     	movq	-160(%rbp,%rcx,8), %rcx
+1000010ed: 48 89 8d 58 ff ff ff        	movq	%rcx, -168(%rbp)
+1000010f4: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+1000010f8: 48 8b 95 58 ff ff ff        	movq	-168(%rbp), %rdx
+1000010ff: 48 8d 3d 90 0b 00 00        	leaq	2960(%rip), %rdi
+100001106: 48 8b 8d 48 ff ff ff        	movq	-184(%rbp), %rcx
+10000110d: 48 89 85 40 ff ff ff        	movq	%rax, -192(%rbp)
+100001114: b0 00                       	movb	$0, %al
+100001116: e8 3f 08 00 00              	callq	2111 <satellite_ground_station.c+0x10000195a>
+10000111b: 48 81 c4 c0 00 00 00        	addq	$192, %rsp
+100001122: 5d                          	popq	%rbp
+100001123: c3                          	retq
+100001124: 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+10000112e: 66 90                       	nop
+
+0000000100001130 _process_data_download:
+100001130: 55                          	pushq	%rbp
+100001131: 48 89 e5                    	movq	%rsp, %rbp
+100001134: 48 81 ec 60 03 00 00        	subq	$864, %rsp
+10000113b: 40 88 7d ff                 	movb	%dil, -1(%rbp)
+10000113f: 48 89 75 f0                 	movq	%rsi, -16(%rbp)
+100001143: 66 89 55 ee                 	movw	%dx, -18(%rbp)
+100001147: 48 8b 45 f0                 	movq	-16(%rbp), %rax
+10000114b: 48 89 45 e0                 	movq	%rax, -32(%rbp)
+10000114f: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100001153: 48 8d 3d 72 0b 00 00        	leaq	2930(%rip), %rdi
+10000115a: b0 00                       	movb	$0, %al
+10000115c: e8 f9 07 00 00              	callq	2041 <satellite_ground_station.c+0x10000195a>
+100001161: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+100001165: 0f b6 71 01                 	movzbl	1(%rcx), %esi
+100001169: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+10000116d: 0f b7 51 0a                 	movzwl	10(%rcx), %edx
+100001171: 48 8d 3d 81 0b 00 00        	leaq	2945(%rip), %rdi
+100001178: 89 85 dc fc ff ff           	movl	%eax, -804(%rbp)
+10000117e: b0 00                       	movb	$0, %al
+100001180: e8 d5 07 00 00              	callq	2005 <satellite_ground_station.c+0x10000195a>
+100001185: 48 8d bd e0 fc ff ff        	leaq	-800(%rbp), %rdi
+10000118c: 48 8d 8d e0 fe ff ff        	leaq	-288(%rbp), %rcx
+100001193: 4c 8b 45 e0                 	movq	-32(%rbp), %r8
+100001197: 49 81 c0 0d 00 00 00        	addq	$13, %r8
+10000119e: 48 89 bd d0 fc ff ff        	movq	%rdi, -816(%rbp)
+1000011a5: 48 89 cf                    	movq	%rcx, %rdi
+1000011a8: 4c 89 c6                    	movq	%r8, %rsi
+1000011ab: 89 85 cc fc ff ff           	movl	%eax, -820(%rbp)
+1000011b1: e8 c8 07 00 00              	callq	1992 <satellite_ground_station.c+0x10000197e>
+1000011b6: 0f b6 55 ff                 	movzbl	-1(%rbp), %edx
+1000011ba: 89 d1                       	movl	%edx, %ecx
+1000011bc: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+1000011c3: 48 8d 35 d6 1e 00 00        	leaq	7894(%rip), %rsi
+1000011ca: 48 01 ce                    	addq	%rcx, %rsi
+1000011cd: 48 81 c6 01 00 00 00        	addq	$1, %rsi
+1000011d4: 48 8b 4d e0                 	movq	-32(%rbp), %rcx
+1000011d8: 0f b6 49 01                 	movzbl	1(%rcx), %ecx
+1000011dc: 48 8b 7d e0                 	movq	-32(%rbp), %rdi
+1000011e0: 48 81 c7 0d 00 00 00        	addq	$13, %rdi
+1000011e7: 4c 8b 45 e0                 	movq	-32(%rbp), %r8
+1000011eb: 45 0f b6 48 0c              	movzbl	12(%r8), %r9d
+1000011f0: 4c 8b 85 d0 fc ff ff        	movq	-816(%rbp), %r8
+1000011f7: 48 89 bd c0 fc ff ff        	movq	%rdi, -832(%rbp)
+1000011fe: 4c 89 c7                    	movq	%r8, %rdi
+100001201: 4c 8d 15 19 0b 00 00        	leaq	2841(%rip), %r10
+100001208: 48 89 b5 b8 fc ff ff        	movq	%rsi, -840(%rbp)
+10000120f: 4c 89 d6                    	movq	%r10, %rsi
+100001212: 48 8b 95 b8 fc ff ff        	movq	-840(%rbp), %rdx
+100001219: 4c 8b 85 c0 fc ff ff        	movq	-832(%rbp), %r8
+100001220: 48 89 85 b0 fc ff ff        	movq	%rax, -848(%rbp)
+100001227: b0 00                       	movb	$0, %al
+100001229: e8 4a 07 00 00              	callq	1866 <satellite_ground_station.c+0x100001978>
+10000122e: 48 8d 95 e0 fc ff ff        	leaq	-800(%rbp), %rdx
+100001235: 0f b6 75 ff                 	movzbl	-1(%rbp), %esi
+100001239: 48 8d 3d 1a 0b 00 00        	leaq	2842(%rip), %rdi
+100001240: 89 85 ac fc ff ff           	movl	%eax, -852(%rbp)
+100001246: b0 00                       	movb	$0, %al
+100001248: e8 0d 07 00 00              	callq	1805 <satellite_ground_station.c+0x10000195a>
+10000124d: 48 81 c4 60 03 00 00        	addq	$864, %rsp
+100001254: 5d                          	popq	%rbp
+100001255: c3                          	retq
+100001256: 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+
+0000000100001260 _process_satellite_command:
+100001260: 55                          	pushq	%rbp
+100001261: 48 89 e5                    	movq	%rsp, %rbp
+100001264: 48 83 ec 40                 	subq	$64, %rsp
+100001268: 48 89 7d f8                 	movq	%rdi, -8(%rbp)
+10000126c: 66 89 75 f6                 	movw	%si, -10(%rbp)
+100001270: 48 8b 45 f8                 	movq	-8(%rbp), %rax
+100001274: 48 89 45 e8                 	movq	%rax, -24(%rbp)
+100001278: 48 8b 45 f8                 	movq	-8(%rbp), %rax
+10000127c: 48 05 06 00 00 00           	addq	$6, %rax
+100001282: 48 89 45 e0                 	movq	%rax, -32(%rbp)
+100001286: 48 8b 45 e0                 	movq	-32(%rbp), %rax
+10000128a: 8a 48 01                    	movb	1(%rax), %cl
+10000128d: 88 4d df                    	movb	%cl, -33(%rbp)
+100001290: 48 8b 45 f8                 	movq	-8(%rbp), %rax
+100001294: 48 05 06 00 00 00           	addq	$6, %rax
+10000129a: 48 05 04 00 00 00           	addq	$4, %rax
+1000012a0: 48 89 45 d0                 	movq	%rax, -48(%rbp)
+1000012a4: 48 8b 45 e8                 	movq	-24(%rbp), %rax
+1000012a8: 66 8b 50 04                 	movw	4(%rax), %dx
+1000012ac: 66 89 55 ce                 	movw	%dx, -50(%rbp)
+1000012b0: 0f b6 75 df                 	movzbl	-33(%rbp), %esi
+1000012b4: 0f b7 55 ce                 	movzwl	-50(%rbp), %edx
+1000012b8: 48 8d 3d bb 0a 00 00        	leaq	2747(%rip), %rdi
+1000012bf: b0 00                       	movb	$0, %al
+1000012c1: e8 94 06 00 00              	callq	1684 <satellite_ground_station.c+0x10000195a>
+1000012c6: 0f b6 55 df                 	movzbl	-33(%rbp), %edx
+1000012ca: 83 fa 10                    	cmpl	$16, %edx
+1000012cd: 0f 8c 17 00 00 00           	jl	23 <_process_satellite_command+0x8a>
+1000012d3: 0f b6 75 df                 	movzbl	-33(%rbp), %esi
+1000012d7: 48 8d 3d d3 0a 00 00        	leaq	2771(%rip), %rdi
+1000012de: b0 00                       	movb	$0, %al
+1000012e0: e8 75 06 00 00              	callq	1653 <satellite_ground_station.c+0x10000195a>
+1000012e5: e9 0a 01 00 00              	jmp	266 <_process_satellite_command+0x194>
+1000012ea: 48 8b 45 d0                 	movq	-48(%rbp), %rax
+1000012ee: 8a 08                       	movb	(%rax), %cl
+1000012f0: 88 4d cd                    	movb	%cl, -51(%rbp)
+1000012f3: 0f b6 55 cd                 	movzbl	-51(%rbp), %edx
+1000012f7: 89 d6                       	movl	%edx, %esi
+1000012f9: 83 ee 10                    	subl	$16, %esi
+1000012fc: 89 55 c8                    	movl	%edx, -56(%rbp)
+1000012ff: 0f 84 4b 00 00 00           	je	75 <_process_satellite_command+0xf0>
+100001305: e9 00 00 00 00              	jmp	0 <_process_satellite_command+0xaa>
+10000130a: 8b 45 c8                    	movl	-56(%rbp), %eax
+10000130d: 83 e8 20                    	subl	$32, %eax
+100001310: 0f 84 52 00 00 00           	je	82 <_process_satellite_command+0x108>
+100001316: e9 00 00 00 00              	jmp	0 <_process_satellite_command+0xbb>
+10000131b: 8b 45 c8                    	movl	-56(%rbp), %eax
+10000131e: 83 e8 30                    	subl	$48, %eax
+100001321: 0f 84 59 00 00 00           	je	89 <_process_satellite_command+0x120>
+100001327: e9 00 00 00 00              	jmp	0 <_process_satellite_command+0xcc>
+10000132c: 8b 45 c8                    	movl	-56(%rbp), %eax
+10000132f: 83 e8 50                    	subl	$80, %eax
+100001332: 0f 84 60 00 00 00           	je	96 <_process_satellite_command+0x138>
+100001338: e9 00 00 00 00              	jmp	0 <_process_satellite_command+0xdd>
+10000133d: 8b 45 c8                    	movl	-56(%rbp), %eax
+100001340: 2d ff 00 00 00              	subl	$255, %eax
+100001345: 0f 84 65 00 00 00           	je	101 <_process_satellite_command+0x150>
+10000134b: e9 92 00 00 00              	jmp	146 <_process_satellite_command+0x182>
+100001350: 8a 45 df                    	movb	-33(%rbp), %al
+100001353: 48 8b 75 d0                 	movq	-48(%rbp), %rsi
+100001357: 0f b6 f8                    	movzbl	%al, %edi
+10000135a: 0f b7 55 ce                 	movzwl	-50(%rbp), %edx
+10000135e: e8 bd f9 ff ff              	callq	-1603 <_process_attitude_control>
+100001363: e9 8c 00 00 00              	jmp	140 <_process_satellite_command+0x194>
+100001368: 8a 45 df                    	movb	-33(%rbp), %al
+10000136b: 48 8b 75 d0                 	movq	-48(%rbp), %rsi
+10000136f: 0f b6 f8                    	movzbl	%al, %edi
+100001372: 0f b7 55 ce                 	movzwl	-50(%rbp), %edx
+100001376: e8 15 fb ff ff              	callq	-1259 <_process_orbit_maneuver>
+10000137b: e9 74 00 00 00              	jmp	116 <_process_satellite_command+0x194>
+100001380: 8a 45 df                    	movb	-33(%rbp), %al
+100001383: 48 8b 75 d0                 	movq	-48(%rbp), %rsi
+100001387: 0f b6 f8                    	movzbl	%al, %edi
+10000138a: 0f b7 55 ce                 	movzwl	-50(%rbp), %edx
+10000138e: e8 6d fc ff ff              	callq	-915 <_process_payload_control>
+100001393: e9 5c 00 00 00              	jmp	92 <_process_satellite_command+0x194>
+100001398: 8a 45 df                    	movb	-33(%rbp), %al
+10000139b: 48 8b 75 d0                 	movq	-48(%rbp), %rsi
+10000139f: 0f b6 f8                    	movzbl	%al, %edi
+1000013a2: 0f b7 55 ce                 	movzwl	-50(%rbp), %edx
+1000013a6: e8 85 fd ff ff              	callq	-635 <_process_data_download>
+1000013ab: e9 44 00 00 00              	jmp	68 <_process_satellite_command+0x194>
+1000013b0: 0f b6 75 df                 	movzbl	-33(%rbp), %esi
+1000013b4: 48 8d 3d 18 0a 00 00        	leaq	2584(%rip), %rdi
+1000013bb: b0 00                       	movb	$0, %al
+1000013bd: e8 98 05 00 00              	callq	1432 <satellite_ground_station.c+0x10000195a>
+1000013c2: 0f b6 4d df                 	movzbl	-33(%rbp), %ecx
+1000013c6: 89 ca                       	movl	%ecx, %edx
+1000013c8: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+1000013cf: 48 8d 3d ca 1c 00 00        	leaq	7370(%rip), %rdi
+1000013d6: 48 01 d7                    	addq	%rdx, %rdi
+1000013d9: c6 47 11 01                 	movb	$1, 17(%rdi)
+1000013dd: e9 12 00 00 00              	jmp	18 <_process_satellite_command+0x194>
+1000013e2: 0f b6 75 cd                 	movzbl	-51(%rbp), %esi
+1000013e6: 48 8d 3d 10 0a 00 00        	leaq	2576(%rip), %rdi
+1000013ed: b0 00                       	movb	$0, %al
+1000013ef: e8 66 05 00 00              	callq	1382 <satellite_ground_station.c+0x10000195a>
+1000013f4: 48 83 c4 40                 	addq	$64, %rsp
+1000013f8: 5d                          	popq	%rbp
+1000013f9: c3                          	retq
+1000013fa: 66 0f 1f 44 00 00           	nopw	(%rax,%rax)
+
+0000000100001400 _initialize_satellites:
+100001400: 55                          	pushq	%rbp
+100001401: 48 89 e5                    	movq	%rsp, %rbp
+100001404: 48 83 ec 10                 	subq	$16, %rsp
+100001408: c7 45 fc 00 00 00 00        	movl	$0, -4(%rbp)
+10000140f: 83 7d fc 08                 	cmpl	$8, -4(%rbp)
+100001413: 0f 8d 0b 02 00 00           	jge	523 <_initialize_satellites+0x224>
+100001419: 8b 45 fc                    	movl	-4(%rbp), %eax
+10000141c: 48 63 4d fc                 	movslq	-4(%rbp), %rcx
+100001420: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100001427: 48 8d 15 72 1c 00 00        	leaq	7282(%rip), %rdx
+10000142e: 48 89 d6                    	movq	%rdx, %rsi
+100001431: 48 01 ce                    	addq	%rcx, %rsi
+100001434: 88 06                       	movb	%al, (%rsi)
+100001436: 48 63 4d fc                 	movslq	-4(%rbp), %rcx
+10000143a: 48 69 c9 48 00 00 00        	imulq	$72, %rcx, %rcx
+100001441: 48 01 ca                    	addq	%rcx, %rdx
+100001444: 48 81 c2 01 00 00 00        	addq	$1, %rdx
+10000144b: 8b 4d fc                    	movl	-4(%rbp), %ecx
+10000144e: 48 89 d7                    	movq	%rdx, %rdi
+100001451: be 10 00 00 00              	movl	$16, %esi
+100001456: 48 8d 15 c6 09 00 00        	leaq	2502(%rip), %rdx
+10000145d: b0 00                       	movb	$0, %al
+10000145f: e8 08 05 00 00              	callq	1288 <satellite_ground_station.c+0x10000196c>
+100001464: 31 c9                       	xorl	%ecx, %ecx
+100001466: 89 cf                       	movl	%ecx, %edi
+100001468: f3 0f 10 05 10 06 00 00     	movss	1552(%rip), %xmm0
+100001470: f3 0f 10 0d 0c 06 00 00     	movss	1548(%rip), %xmm1
+100001478: f2 0f 10 15 f0 05 00 00     	movsd	1520(%rip), %xmm2
+100001480: f2 0f 10 1d f0 05 00 00     	movsd	1520(%rip), %xmm3
+100001488: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+10000148c: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001493: 48 8d 35 06 1c 00 00        	leaq	7174(%rip), %rsi
+10000149a: 49 89 f0                    	movq	%rsi, %r8
+10000149d: 49 01 d0                    	addq	%rdx, %r8
+1000014a0: 41 c6 40 11 02              	movb	$2, 17(%r8)
+1000014a5: f2 0f 2a 65 fc              	cvtsi2sdl	-4(%rbp), %xmm4
+1000014aa: f2 0f 59 e3                 	mulsd	%xmm3, %xmm4
+1000014ae: f2 0f 58 d4                 	addsd	%xmm4, %xmm2
+1000014b2: f2 0f 5a d2                 	cvtsd2ss	%xmm2, %xmm2
+1000014b6: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+1000014ba: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+1000014c1: 49 89 f0                    	movq	%rsi, %r8
+1000014c4: 49 01 d0                    	addq	%rdx, %r8
+1000014c7: f3 41 0f 11 50 14           	movss	%xmm2, 20(%r8)
+1000014cd: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+1000014d1: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+1000014d8: 49 89 f0                    	movq	%rsi, %r8
+1000014db: 49 01 d0                    	addq	%rdx, %r8
+1000014de: 0f 57 d2                    	xorps	%xmm2, %xmm2
+1000014e1: f3 41 0f 11 50 18           	movss	%xmm2, 24(%r8)
+1000014e7: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+1000014eb: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+1000014f2: 49 89 f0                    	movq	%rsi, %r8
+1000014f5: 49 01 d0                    	addq	%rdx, %r8
+1000014f8: f3 41 0f 11 50 1c           	movss	%xmm2, 28(%r8)
+1000014fe: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+100001502: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001509: 49 89 f0                    	movq	%rsi, %r8
+10000150c: 49 01 d0                    	addq	%rdx, %r8
+10000150f: f3 41 0f 11 50 20           	movss	%xmm2, 32(%r8)
+100001515: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+100001519: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001520: 49 89 f0                    	movq	%rsi, %r8
+100001523: 49 01 d0                    	addq	%rdx, %r8
+100001526: f3 41 0f 11 48 24           	movss	%xmm1, 36(%r8)
+10000152c: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+100001530: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001537: 49 89 f0                    	movq	%rsi, %r8
+10000153a: 49 01 d0                    	addq	%rdx, %r8
+10000153d: f3 41 0f 11 50 28           	movss	%xmm2, 40(%r8)
+100001543: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+100001547: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+10000154e: 49 89 f0                    	movq	%rsi, %r8
+100001551: 49 01 d0                    	addq	%rdx, %r8
+100001554: f3 41 0f 11 40 2c           	movss	%xmm0, 44(%r8)
+10000155a: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+10000155e: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001565: 49 89 f0                    	movq	%rsi, %r8
+100001568: 49 01 d0                    	addq	%rdx, %r8
+10000156b: f3 41 0f 11 50 30           	movss	%xmm2, 48(%r8)
+100001571: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+100001575: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+10000157c: 49 89 f0                    	movq	%rsi, %r8
+10000157f: 49 01 d0                    	addq	%rdx, %r8
+100001582: f3 41 0f 11 50 34           	movss	%xmm2, 52(%r8)
+100001588: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+10000158c: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+100001593: 48 01 d6                    	addq	%rdx, %rsi
+100001596: f3 0f 11 56 38              	movss	%xmm2, 56(%rsi)
+10000159b: 89 45 f8                    	movl	%eax, -8(%rbp)
+10000159e: e8 e7 03 00 00              	callq	999 <satellite_ground_station.c+0x10000198a>
+1000015a3: f2 0f 10 05 b5 04 00 00     	movsd	1205(%rip), %xmm0
+1000015ab: f2 0f 10 0d b5 04 00 00     	movsd	1205(%rip), %xmm1
+1000015b3: 48 63 55 fc                 	movslq	-4(%rbp), %rdx
+1000015b7: 48 69 d2 48 00 00 00        	imulq	$72, %rdx, %rdx
+1000015be: 48 8d 35 db 1a 00 00        	leaq	6875(%rip), %rsi
+1000015c5: 48 89 f7                    	movq	%rsi, %rdi
+1000015c8: 48 01 d7                    	addq	%rdx, %rdi
+1000015cb: 89 47 3c                    	movl	%eax, 60(%rdi)
+1000015ce: 8b 45 fc                    	movl	-4(%rbp), %eax
+1000015d1: 99                          	cltd
+1000015d2: b9 0f 00 00 00              	movl	$15, %ecx
+1000015d7: f7 f9                       	idivl	%ecx
+1000015d9: 83 c2 55                    	addl	$85, %edx
+1000015dc: 48 63 7d fc                 	movslq	-4(%rbp), %rdi
+1000015e0: 48 69 ff 48 00 00 00        	imulq	$72, %rdi, %rdi
+1000015e7: 49 89 f0                    	movq	%rsi, %r8
+1000015ea: 49 01 f8                    	addq	%rdi, %r8
+1000015ed: 66 41 89 50 40              	movw	%dx, 64(%r8)
+1000015f2: f2 0f 2a 55 fc              	cvtsi2sdl	-4(%rbp), %xmm2
+1000015f7: f2 0f 59 d1                 	mulsd	%xmm1, %xmm2
+1000015fb: f2 0f 58 c2                 	addsd	%xmm2, %xmm0
+1000015ff: f2 0f 5a c0                 	cvtsd2ss	%xmm0, %xmm0
+100001603: 48 63 7d fc                 	movslq	-4(%rbp), %rdi
+100001607: 48 69 ff 48 00 00 00        	imulq	$72, %rdi, %rdi
+10000160e: 48 01 fe                    	addq	%rdi, %rsi
+100001611: f3 0f 11 46 44              	movss	%xmm0, 68(%rsi)
+100001616: 8b 45 fc                    	movl	-4(%rbp), %eax
+100001619: 83 c0 01                    	addl	$1, %eax
+10000161c: 89 45 fc                    	movl	%eax, -4(%rbp)
+10000161f: e9 eb fd ff ff              	jmp	-533 <_initialize_satellites+0xf>
+100001624: c7 05 f2 1e 00 00 08 00 00 00       	movl	$8, 7922(%rip)
+10000162e: 8b 35 ec 1e 00 00           	movl	7916(%rip), %esi
+100001634: 48 8d 3d f1 07 00 00        	leaq	2033(%rip), %rdi
+10000163b: b0 00                       	movb	$0, %al
+10000163d: e8 18 03 00 00              	callq	792 <satellite_ground_station.c+0x10000195a>
+100001642: 48 83 c4 10                 	addq	$16, %rsp
+100001646: 5d                          	popq	%rbp
+100001647: c3                          	retq
+100001648: 0f 1f 84 00 00 00 00 00     	nopl	(%rax,%rax)
+
+0000000100001650 _handle_ground_station_client:
+100001650: 55                          	pushq	%rbp
+100001651: 48 89 e5                    	movq	%rsp, %rbp
+100001654: b8 40 20 00 00              	movl	$8256, %eax
+100001659: e8 c0 02 00 00              	callq	704 <satellite_ground_station.c+0x10000191e>
+10000165e: 48 29 c4                    	subq	%rax, %rsp
+100001661: 89 7d fc                    	movl	%edi, -4(%rbp)
+100001664: 48 8d 3d e5 07 00 00        	leaq	2021(%rip), %rdi
+10000166b: b0 00                       	movb	$0, %al
+10000166d: e8 e8 02 00 00              	callq	744 <satellite_ground_station.c+0x10000195a>
+100001672: 31 c9                       	xorl	%ecx, %ecx
+100001674: 48 8d b5 f0 df ff ff        	leaq	-8208(%rbp), %rsi
+10000167b: 8b 7d fc                    	movl	-4(%rbp), %edi
+10000167e: ba 00 20 00 00              	movl	$8192, %edx
+100001683: e8 d8 02 00 00              	callq	728 <satellite_ground_station.c+0x100001960>
+100001688: 48 89 85 e8 df ff ff        	movq	%rax, -8216(%rbp)
+10000168f: 48 83 bd e8 df ff ff 00     	cmpq	$0, -8216(%rbp)
+100001697: 0f 8f 13 00 00 00           	jg	19 <_handle_ground_station_client+0x60>
+10000169d: 48 8d 3d cf 07 00 00        	leaq	1999(%rip), %rdi
+1000016a4: b0 00                       	movb	$0, %al
+1000016a6: e8 af 02 00 00              	callq	687 <satellite_ground_station.c+0x10000195a>
+1000016ab: e9 86 00 00 00              	jmp	134 <_handle_ground_station_client+0xe6>
+1000016b0: 48 8b b5 e8 df ff ff        	movq	-8216(%rbp), %rsi
+1000016b7: 48 8d 3d db 07 00 00        	leaq	2011(%rip), %rdi
+1000016be: b0 00                       	movb	$0, %al
+1000016c0: e8 95 02 00 00              	callq	661 <satellite_ground_station.c+0x10000195a>
+1000016c5: 48 8d bd f0 df ff ff        	leaq	-8208(%rbp), %rdi
+1000016cc: 48 8b 8d e8 df ff ff        	movq	-8216(%rbp), %rcx
+1000016d3: 0f b7 f1                    	movzwl	%cx, %esi
+1000016d6: 89 85 dc df ff ff           	movl	%eax, -8228(%rbp)
+1000016dc: e8 7f fb ff ff              	callq	-1153 <_process_satellite_command>
+1000016e1: 31 c9                       	xorl	%ecx, %ecx
+1000016e3: 48 8d 95 e0 df ff ff        	leaq	-8224(%rbp), %rdx
+1000016ea: 48 8b 3d c5 07 00 00        	movq	1989(%rip), %rdi
+1000016f1: 48 89 bd e0 df ff ff        	movq	%rdi, -8224(%rbp)
+1000016f8: 8b 7d fc                    	movl	-4(%rbp), %edi
+1000016fb: 89 bd d8 df ff ff           	movl	%edi, -8232(%rbp)
+100001701: 48 89 d7                    	movq	%rdx, %rdi
+100001704: 89 8d d4 df ff ff           	movl	%ecx, -8236(%rbp)
+10000170a: 48 89 95 c8 df ff ff        	movq	%rdx, -8248(%rbp)
+100001711: e8 6e 02 00 00              	callq	622 <satellite_ground_station.c+0x100001984>
+100001716: 8b bd d8 df ff ff           	movl	-8232(%rbp), %edi
+10000171c: 48 8b b5 c8 df ff ff        	movq	-8248(%rbp), %rsi
+100001723: 48 89 c2                    	movq	%rax, %rdx
+100001726: 8b 8d d4 df ff ff           	movl	-8236(%rbp), %ecx
+10000172c: e8 35 02 00 00              	callq	565 <satellite_ground_station.c+0x100001966>
+100001731: e9 3c ff ff ff              	jmp	-196 <_handle_ground_station_client+0x22>
+100001736: 8b 7d fc                    	movl	-4(%rbp), %edi
+100001739: e8 f2 01 00 00              	callq	498 <satellite_ground_station.c+0x100001930>
+10000173e: 48 81 c4 40 20 00 00        	addq	$8256, %rsp
+100001745: 5d                          	popq	%rbp
+100001746: c3                          	retq
+100001747: 66 0f 1f 84 00 00 00 00 00  	nopw	(%rax,%rax)
+
+0000000100001750 _main:
+100001750: 55                          	pushq	%rbp
+100001751: 48 89 e5                    	movq	%rsp, %rbp
+100001754: 48 83 ec 60                 	subq	$96, %rsp
+100001758: c7 45 fc 00 00 00 00        	movl	$0, -4(%rbp)
+10000175f: c7 45 cc 10 00 00 00        	movl	$16, -52(%rbp)
+100001766: e8 95 fc ff ff              	callq	-875 <_initialize_satellites>
+10000176b: 31 d2                       	xorl	%edx, %edx
+10000176d: bf 02 00 00 00              	movl	$2, %edi
+100001772: be 01 00 00 00              	movl	$1, %esi
+100001777: e8 f6 01 00 00              	callq	502 <satellite_ground_station.c+0x100001972>
+10000177c: 89 45 f8                    	movl	%eax, -8(%rbp)
+10000177f: 83 7d f8 00                 	cmpl	$0, -8(%rbp)
+100001783: 0f 8d 16 00 00 00           	jge	22 <_main+0x4f>
+100001789: 48 8d 3d 2e 07 00 00        	leaq	1838(%rip), %rdi
+100001790: e8 bf 01 00 00              	callq	447 <satellite_ground_station.c+0x100001954>
+100001795: bf 01 00 00 00              	movl	$1, %edi
+10000179a: e8 97 01 00 00              	callq	407 <satellite_ground_station.c+0x100001936>
+10000179f: 31 f6                       	xorl	%esi, %esi
+1000017a1: 48 8d 45 e0                 	leaq	-32(%rbp), %rax
+1000017a5: 48 89 c1                    	movq	%rax, %rcx
+1000017a8: 48 89 cf                    	movq	%rcx, %rdi
+1000017ab: ba 10 00 00 00              	movl	$16, %edx
+1000017b0: 48 89 45 c0                 	movq	%rax, -64(%rbp)
+1000017b4: e8 95 01 00 00              	callq	405 <satellite_ground_station.c+0x10000194e>
+1000017b9: c6 45 e1 02                 	movb	$2, -31(%rbp)
+1000017bd: c7 45 e4 00 00 00 00        	movl	$0, -28(%rbp)
+1000017c4: 66 c7 45 e2 07 e7           	movw	$59143, -30(%rbp)
+1000017ca: 8b 7d f8                    	movl	-8(%rbp), %edi
+1000017cd: 48 8b 45 c0                 	movq	-64(%rbp), %rax
+1000017d1: 48 89 c6                    	movq	%rax, %rsi
+1000017d4: ba 10 00 00 00              	movl	$16, %edx
+1000017d9: e8 4c 01 00 00              	callq	332 <satellite_ground_station.c+0x10000192a>
+1000017de: 83 f8 00                    	cmpl	$0, %eax
+1000017e1: 0f 8d 16 00 00 00           	jge	22 <_main+0xad>
+1000017e7: 48 8d 3d e7 06 00 00        	leaq	1767(%rip), %rdi
+1000017ee: e8 61 01 00 00              	callq	353 <satellite_ground_station.c+0x100001954>
+1000017f3: bf 01 00 00 00              	movl	$1, %edi
+1000017f8: e8 39 01 00 00              	callq	313 <satellite_ground_station.c+0x100001936>
+1000017fd: 8b 7d f8                    	movl	-8(%rbp), %edi
+100001800: be 05 00 00 00              	movl	$5, %esi
+100001805: e8 38 01 00 00              	callq	312 <satellite_ground_station.c+0x100001942>
+10000180a: 83 f8 00                    	cmpl	$0, %eax
+10000180d: 0f 8d 16 00 00 00           	jge	22 <_main+0xd9>
+100001813: 48 8d 3d c7 06 00 00        	leaq	1735(%rip), %rdi
+10000181a: e8 35 01 00 00              	callq	309 <satellite_ground_station.c+0x100001954>
+10000181f: bf 01 00 00 00              	movl	$1, %edi
+100001824: e8 0d 01 00 00              	callq	269 <satellite_ground_station.c+0x100001936>
+100001829: 48 8d 3d bf 06 00 00        	leaq	1727(%rip), %rdi
+100001830: be e7 07 00 00              	movl	$2023, %esi
+100001835: b0 00                       	movb	$0, %al
+100001837: e8 1e 01 00 00              	callq	286 <satellite_ground_station.c+0x10000195a>
+10000183c: 48 8d 3d ef 06 00 00        	leaq	1775(%rip), %rdi
+100001843: 89 45 bc                    	movl	%eax, -68(%rbp)
+100001846: b0 00                       	movb	$0, %al
+100001848: e8 0d 01 00 00              	callq	269 <satellite_ground_station.c+0x10000195a>
+10000184d: 8b 7d f8                    	movl	-8(%rbp), %edi
+100001850: 48 8d 45 d0                 	leaq	-48(%rbp), %rax
+100001854: 48 89 c6                    	movq	%rax, %rsi
+100001857: 48 8d 55 cc                 	leaq	-52(%rbp), %rdx
+10000185b: e8 c4 00 00 00              	callq	196 <satellite_ground_station.c+0x100001924>
+100001860: 89 45 f4                    	movl	%eax, -12(%rbp)
+100001863: 83 7d f4 00                 	cmpl	$0, -12(%rbp)
+100001867: 0f 8d 11 00 00 00           	jge	17 <_main+0x12e>
+10000186d: 48 8d 3d ff 06 00 00        	leaq	1791(%rip), %rdi
+100001874: e8 db 00 00 00              	callq	219 <satellite_ground_station.c+0x100001954>
+100001879: e9 cf ff ff ff              	jmp	-49 <_main+0xfd>
+10000187e: 8b 7d d4                    	movl	-44(%rbp), %edi
+100001881: e8 b6 00 00 00              	callq	182 <satellite_ground_station.c+0x10000193c>
+100001886: 31 c9                       	xorl	%ecx, %ecx
+100001888: f6 c1 01                    	testb	$1, %cl
+10000188b: 48 89 45 b0                 	movq	%rax, -80(%rbp)
+10000188f: 0f 85 05 00 00 00           	jne	5 <_main+0x14a>
+100001895: e9 26 00 00 00              	jmp	38 <_main+0x170>
+10000189a: 0f b7 45 d2                 	movzwl	-46(%rbp), %eax
+10000189e: 25 00 ff 00 00              	andl	$65280, %eax
+1000018a3: c1 f8 08                    	sarl	$8, %eax
+1000018a6: 0f b7 4d d2                 	movzwl	-46(%rbp), %ecx
+1000018aa: 81 e1 ff 00 00 00           	andl	$255, %ecx
+1000018b0: c1 e1 08                    	shll	$8, %ecx
+1000018b3: 09 c8                       	orl	%ecx, %eax
+1000018b5: 0f b7 c8                    	movzwl	%ax, %ecx
+1000018b8: 89 4d ac                    	movl	%ecx, -84(%rbp)
+1000018bb: e9 0f 00 00 00              	jmp	15 <_main+0x17f>
+1000018c0: 0f b7 7d d2                 	movzwl	-46(%rbp), %edi
+1000018c4: e8 37 00 00 00              	callq	55 <__OSSwapInt16>
+1000018c9: 0f b7 c8                    	movzwl	%ax, %ecx
+1000018cc: 89 4d ac                    	movl	%ecx, -84(%rbp)
+1000018cf: 8b 45 ac                    	movl	-84(%rbp), %eax
+1000018d2: 0f b7 d0                    	movzwl	%ax, %edx
+1000018d5: 48 8d 3d a5 06 00 00        	leaq	1701(%rip), %rdi
+1000018dc: 48 8b 75 b0                 	movq	-80(%rbp), %rsi
+1000018e0: b0 00                       	movb	$0, %al
+1000018e2: e8 73 00 00 00              	callq	115 <satellite_ground_station.c+0x10000195a>
+1000018e7: 8b 7d f4                    	movl	-12(%rbp), %edi
+1000018ea: 89 45 a8                    	movl	%eax, -88(%rbp)
+1000018ed: e8 5e fd ff ff              	callq	-674 <_handle_ground_station_client>
+1000018f2: e9 56 ff ff ff              	jmp	-170 <_main+0xfd>
+1000018f7: 66 0f 1f 84 00 00 00 00 00  	nopw	(%rax,%rax)
+
+0000000100001900 __OSSwapInt16:
+100001900: 55                          	pushq	%rbp
+100001901: 48 89 e5                    	movq	%rsp, %rbp
+100001904: 66 89 7d fe                 	movw	%di, -2(%rbp)
+100001908: 0f b7 45 fe                 	movzwl	-2(%rbp), %eax
+10000190c: c1 e0 08                    	shll	$8, %eax
+10000190f: 0f b7 4d fe                 	movzwl	-2(%rbp), %ecx
+100001913: c1 f9 08                    	sarl	$8, %ecx
+100001916: 09 c8                       	orl	%ecx, %eax
+100001918: 0f b7 c0                    	movzwl	%ax, %eax
+10000191b: 5d                          	popq	%rbp
+10000191c: c3                          	retq
+
+Disassembly of section __TEXT,__stubs:
+
+000000010000191e __stubs:
+10000191e: ff 25 dc 16 00 00           	jmpq	*5852(%rip)
+100001924: ff 25 de 16 00 00           	jmpq	*5854(%rip)
+10000192a: ff 25 e0 16 00 00           	jmpq	*5856(%rip)
+100001930: ff 25 e2 16 00 00           	jmpq	*5858(%rip)
+100001936: ff 25 e4 16 00 00           	jmpq	*5860(%rip)
+10000193c: ff 25 e6 16 00 00           	jmpq	*5862(%rip)
+100001942: ff 25 e8 16 00 00           	jmpq	*5864(%rip)
+100001948: ff 25 ea 16 00 00           	jmpq	*5866(%rip)
+10000194e: ff 25 ec 16 00 00           	jmpq	*5868(%rip)
+100001954: ff 25 ee 16 00 00           	jmpq	*5870(%rip)
+10000195a: ff 25 f0 16 00 00           	jmpq	*5872(%rip)
+100001960: ff 25 f2 16 00 00           	jmpq	*5874(%rip)
+100001966: ff 25 f4 16 00 00           	jmpq	*5876(%rip)
+10000196c: ff 25 f6 16 00 00           	jmpq	*5878(%rip)
+100001972: ff 25 f8 16 00 00           	jmpq	*5880(%rip)
+100001978: ff 25 fa 16 00 00           	jmpq	*5882(%rip)
+10000197e: ff 25 fc 16 00 00           	jmpq	*5884(%rip)
+100001984: ff 25 fe 16 00 00           	jmpq	*5886(%rip)
+10000198a: ff 25 00 17 00 00           	jmpq	*5888(%rip)

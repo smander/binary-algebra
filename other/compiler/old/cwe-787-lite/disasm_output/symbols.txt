@@ -1,0 +1,3 @@
+0000000100000000 T __mh_execute_header
+0000000100000fa0 T _main
+                 U dyld_stub_binder

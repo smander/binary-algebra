@@ -15,3 +15,5 @@ nop : 1 ->
 neg (OP) : 1 ->
 jle : ZF == 1 ->
 and (DST,SRC) : 1 -> DST = BIN_AND(DST,SRC)
+movzx (SRC,DST) : 1 -> DST = BIN_COPY(SRC,DST)
+movsxd (SRC,DST) : 1 -> DST = BIN_COPY(SRC,DST)

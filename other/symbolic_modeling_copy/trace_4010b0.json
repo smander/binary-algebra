@@ -1,0 +1,1906 @@
+{
+  "total_steps": 10,
+  "execution_path": [
+    {
+      "step": 0,
+      "instruction": "xor RAX, RAX",
+      "mnemonic": "xor",
+      "operands": [
+        "RAX",
+        "RAX"
+      ]
+    },
+    {
+      "step": 1,
+      "instruction": "mov RAX, RBX",
+      "mnemonic": "mov",
+      "operands": [
+        "RAX",
+        "RBX"
+      ]
+    },
+    {
+      "step": 2,
+      "instruction": "pop RAX",
+      "mnemonic": "pop",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 3,
+      "instruction": "mov RAX, RBX",
+      "mnemonic": "mov",
+      "operands": [
+        "RAX",
+        "RBX"
+      ]
+    },
+    {
+      "step": 4,
+      "instruction": "and RAX",
+      "mnemonic": "and",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 5,
+      "instruction": "push RAX",
+      "mnemonic": "push",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 6,
+      "instruction": "push RAX",
+      "mnemonic": "push",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 7,
+      "instruction": "lea RAX",
+      "mnemonic": "lea",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 8,
+      "instruction": "lea RAX",
+      "mnemonic": "lea",
+      "operands": [
+        "RAX"
+      ]
+    },
+    {
+      "step": 9,
+      "instruction": "lea RAX",
+      "mnemonic": "lea",
+      "operands": [
+        "RAX"
+      ]
+    }
+  ],
+  "snapshots": [
+    {
+      "step": 0,
+      "instruction": "Initial state",
+      "registers": {
+        "RAX": {
+          "value": 256,
+          "symbolic": false,
+          "size": 8,
+          "name": "RAX"
+        },
+        "RBX": {
+          "value": 512,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 4294902016,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 4294901760,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 1,
+      "instruction": "xor RAX, RAX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RAX"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 2,
+      "instruction": "mov RAX, RBX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RAX"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 3,
+      "instruction": "pop RAX",
+      "registers": {
+        "RAX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 4,
+      "instruction": "mov RAX, RBX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 5,
+      "instruction": "and RAX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        }
+      },
+      "constraints": [],
+      "stack": [],
+      "rsp_value": 0
+    },
+    {
+      "step": 6,
+      "instruction": "push RAX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": -8,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        },
+        "-16": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      },
+      "constraints": [],
+      "stack": [
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      ],
+      "rsp_value": 0
+    },
+    {
+      "step": 7,
+      "instruction": "push RAX",
+      "registers": {
+        "RAX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": -8,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        },
+        "-16": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      },
+      "constraints": [],
+      "stack": [
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      ],
+      "rsp_value": 0
+    },
+    {
+      "step": 8,
+      "instruction": "lea RAX",
+      "registers": {
+        "RAX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "lea_4010bf"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        },
+        "-16": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      },
+      "constraints": [],
+      "stack": [
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      ],
+      "rsp_value": 0
+    },
+    {
+      "step": 9,
+      "instruction": "lea RAX",
+      "registers": {
+        "RAX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "lea_4010c6"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        },
+        "-16": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      },
+      "constraints": [],
+      "stack": [
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      ],
+      "rsp_value": 0
+    },
+    {
+      "step": 10,
+      "instruction": "lea RAX",
+      "registers": {
+        "RAX": {
+          "value": null,
+          "symbolic": true,
+          "size": 8,
+          "name": "lea_4010cd"
+        },
+        "RBX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBX"
+        },
+        "RCX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_x"
+        },
+        "RDX": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "input_y"
+        },
+        "RSI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSI"
+        },
+        "RDI": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RDI"
+        },
+        "RBP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RBP"
+        },
+        "RSP": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "RSP"
+        },
+        "R8": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R8"
+        },
+        "R9": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R9"
+        },
+        "R10": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R10"
+        },
+        "R11": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R11"
+        },
+        "R12": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R12"
+        },
+        "R13": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R13"
+        },
+        "R14": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R14"
+        },
+        "R15": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "R15"
+        }
+      },
+      "flags": {
+        "CF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "CF"
+        },
+        "PF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "PF"
+        },
+        "AF": {
+          "value": null,
+          "symbolic": true,
+          "size": 1,
+          "name": "AF"
+        },
+        "ZF": {
+          "value": 1,
+          "symbolic": false,
+          "size": 1,
+          "name": "ZF"
+        },
+        "SF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "SF"
+        },
+        "OF": {
+          "value": 0,
+          "symbolic": false,
+          "size": 1,
+          "name": "OF"
+        }
+      },
+      "memory": {
+        "4096": {
+          "value": 66,
+          "symbolic": false,
+          "size": 1,
+          "name": null
+        },
+        "8192": {
+          "value": null,
+          "symbolic": true,
+          "size": 4,
+          "name": "mem_value"
+        },
+        "-16": {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      },
+      "constraints": [],
+      "stack": [
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        },
+        {
+          "value": 0,
+          "symbolic": false,
+          "size": 8,
+          "name": "stack_underflow"
+        }
+      ],
+      "rsp_value": 0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./bin/satellite_ground_station_asan:*)",
+      "Bash(./bin/satellite_ground_station:*)",
+      "Bash(pkill:*)",
+      "Bash(python3:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,79 @@
+
+bin/satellite_ground_station:	file format Mach-O 64-bit x86-64
+
+SYMBOL TABLE:
+0000000100001900 l     F __TEXT,__text __OSSwapInt16
+0000000100003098 l     O __DATA,__data __dyld_private
+00000001000030a0 l     O __DATA,__bss _satellites
+0000000100003520 l     O __DATA,__bss _active_satellites
+0000000000000000 l    d  *UND* /Users/smander/projects/PHD/binary-algebra/other/compiler/
+0000000000000000 l    d  *UND* satellite_ground_station.c
+000000006871053a l    d  __TEXT,__stub_helper __stub_helper
+0000000100000d20 l    d  __TEXT,__text __text
+0000000100000d20 l    d  __TEXT,__text __text
+0000000000000170 l    d  *UND* 
+0000000000000170 l    d  __TEXT,__text __text
+0000000100000e90 l    d  __TEXT,__text __text
+0000000100000e90 l    d  __TEXT,__text __text
+0000000000000170 l    d  *UND* 
+0000000000000170 l    d  __TEXT,__text __text
+0000000100001000 l    d  __TEXT,__text __text
+0000000100001000 l    d  __TEXT,__text __text
+0000000000000130 l    d  *UND* 
+0000000000000130 l    d  __TEXT,__text __text
+0000000100001130 l    d  __TEXT,__text __text
+0000000100001130 l    d  __TEXT,__text __text
+0000000000000130 l    d  *UND* 
+0000000000000130 l    d  __TEXT,__text __text
+0000000100001260 l    d  __TEXT,__text __text
+0000000100001260 l    d  __TEXT,__text __text
+00000000000001a0 l    d  *UND* 
+00000000000001a0 l    d  __TEXT,__text __text
+0000000100001400 l    d  __TEXT,__text __text
+0000000100001400 l    d  __TEXT,__text __text
+0000000000000250 l    d  *UND* 
+0000000000000250 l    d  __TEXT,__text __text
+0000000100001650 l    d  __TEXT,__text __text
+0000000100001650 l    d  __TEXT,__text __text
+0000000000000100 l    d  *UND* 
+0000000000000100 l    d  __TEXT,__text __text
+0000000100001750 l    d  __TEXT,__text __text
+0000000100001750 l    d  __TEXT,__text __text
+00000000000001b0 l    d  *UND* 
+00000000000001b0 l    d  __TEXT,__text __text
+0000000100001900 l    d  __TEXT,__text __text
+0000000100001900 l    d  __TEXT,__text __text
+000000000000001d l    d  *UND* 
+000000000000001d l    d  __TEXT,__text __text
+00000001000030a0 l    d  __DATA,__bss __bss
+0000000100003520 l    d  __DATA,__bss __bss
+0000000000000000 l    d  __TEXT,__text __text
+0000000100000000 g     F __TEXT,__text __mh_execute_header
+0000000100001650 g     F __TEXT,__text _handle_ground_station_client
+0000000100001400 g     F __TEXT,__text _initialize_satellites
+0000000100001750 g     F __TEXT,__text _main
+0000000100000d20 g     F __TEXT,__text _process_attitude_control
+0000000100001130 g     F __TEXT,__text _process_data_download
+0000000100000e90 g     F __TEXT,__text _process_orbit_maneuver
+0000000100001000 g     F __TEXT,__text _process_payload_control
+0000000100001260 g     F __TEXT,__text _process_satellite_command
+0000000000000000         *UND* ____chkstk_darwin
+0000000000000000         *UND* _accept
+0000000000000000         *UND* _bind
+0000000000000000         *UND* _close
+0000000000000000         *UND* _exit
+0000000000000000         *UND* _inet_ntoa
+0000000000000000         *UND* _listen
+0000000000000000         *UND* _memcpy
+0000000000000000         *UND* _memset
+0000000000000000         *UND* _perror
+0000000000000000         *UND* _printf
+0000000000000000         *UND* _recv
+0000000000000000         *UND* _send
+0000000000000000         *UND* _snprintf
+0000000000000000         *UND* _socket
+0000000000000000         *UND* _sprintf
+0000000000000000         *UND* _strcpy
+0000000000000000         *UND* _strlen
+0000000000000000         *UND* _time
+0000000000000000         *UND* dyld_stub_binder
