@@ -221,6 +221,11 @@ def get_value(operand, env):
     if not isinstance(operand, str):
         return operand
 
+    # Debug print
+    print(f"DEBUG: get_value called with operand='{operand}'")
+    print(f"DEBUG: operand in REG_SIZES: {operand in env.REG_SIZES}")
+    print(f"DEBUG: operand in REG_PARENT: {operand in env.REG_PARENT}")
+    
     if operand in env.REG_SIZES or operand in env.REG_PARENT:
         return env.get_register(operand)
     else:
