@@ -38,6 +38,18 @@ def BIN_ADD(env, dest, source):
     dest_value = get_value(dest, env)
     source_value = parse_value(source, env)
 
+    # Ensure both operands have the same bit width
+    dest_size = dest_value.size()
+    source_size = source_value.size()
+    
+    if dest_size != source_size:
+        if dest_size < source_size:
+            # Truncate source to match destination size
+            source_value = Extract(dest_size - 1, 0, source_value)
+        else:
+            # Zero-extend source to match destination size
+            source_value = ZeroExt(dest_size - source_size, source_value)
+
     # Perform addition
     result = dest_value + source_value
 
@@ -59,6 +71,18 @@ def BIN_SUB(env, dest, source):
     """
     dest_value = get_value(dest, env)
     source_value = parse_value(source, env)
+
+    # Ensure both operands have the same bit width
+    dest_size = dest_value.size()
+    source_size = source_value.size()
+    
+    if dest_size != source_size:
+        if dest_size < source_size:
+            # Truncate source to match destination size
+            source_value = Extract(dest_size - 1, 0, source_value)
+        else:
+            # Zero-extend source to match destination size
+            source_value = ZeroExt(dest_size - source_size, source_value)
 
     # Perform subtraction
     result = dest_value - source_value

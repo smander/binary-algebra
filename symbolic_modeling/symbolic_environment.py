@@ -111,6 +111,10 @@ class SymbolicEnvironment:
                 return z3.Extract(7, 0, parent_value)
             elif reg_name.endswith('h'):  # Higher 8-bit
                 return z3.Extract(15, 8, parent_value)
+            else:
+                # For other sub-registers, return the extracted value based on size
+                reg_size = self.REG_SIZES.get(reg_name, 64)
+                return z3.Extract(reg_size - 1, 0, parent_value)
 
         raise ValueError(f"Unknown register: {reg_name}")
 
