@@ -13,6 +13,37 @@ from solver_integration import SMTSolver
 from trace_recorder import TraceRecord
 from constraint_generator import generate_constraint, parse_operand
 from postconditions import POSTCONDITION_MAP
+import re
+
+
+def execute_bin_operation(expression, env):
+    """
+    Dynamically execute any BIN_* operation from the expression
+    
+    Args:
+        expression: String like "BIN_COPY(SRC,DST)" or "BIN_ADD(DST,SRC)"
+        env: Symbolic environment
+    """
+    # Find BIN_* function call using regex
+    match = re.search(r'(BIN_\w+)\s*\(\s*([^)]+)\s*\)', expression)
+    if not match:
+        return
+        
+    func_name = match.group(1)
+    args_str = match.group(2)
+    args = [arg.strip() for arg in args_str.split(',')]
+    
+    # Dynamically import and call the function
+    try:
+        import postconditions
+        if hasattr(postconditions, func_name):
+            bin_func = getattr(postconditions, func_name)
+            if len(args) >= 2:
+                bin_func(env, args[0], args[1])
+            elif len(args) == 1:
+                bin_func(env, args[0])
+    except Exception as e:
+        print(f"Error executing {func_name}: {e}")
 
 
 def apply_postcondition(instruction, semantics, env):
@@ -33,29 +64,32 @@ def apply_postcondition(instruction, semantics, env):
         return False
 
     try:
-        # Get the instruction opcode for function lookup
-        opcode = instruction.opcode.lower()
-
-        # Try to look up postcondition function directly by opcode
-        postcondition_func = POSTCONDITION_MAP.get(opcode)
-
-        # If not found, try case variations
-        if not postcondition_func:
-            postcondition_func = (POSTCONDITION_MAP.get(opcode.upper()) or
-                                  POSTCONDITION_MAP.get(opcode.capitalize()))
-
-        if not postcondition_func:
-            print(f"No postcondition function found for {opcode}")
-            return False
-
-        # Apply postcondition based on number of operands
-        if len(instruction.operands) == 0:
-            postcondition_func(env)
-        elif len(instruction.operands) == 1:
-            postcondition_func(env, instruction.operands[0])
-        elif len(instruction.operands) >= 2:
-            postcondition_func(env, instruction.operands[0], instruction.operands[1])
-
+        # Parse and execute the postcondition from semantics file
+        postcondition = semantics.postcondition.strip()
+        
+        if not postcondition:
+            return True  # Empty postcondition is valid (like for jumps)
+            
+        # Handle assignment: DST = BIN_COPY(SRC,DST)
+        if '=' in postcondition:
+            left, right = postcondition.split('=', 1)
+            dest = left.strip()
+            expression = right.strip()
+            
+            # Map semantic operands to actual instruction operands
+            operand_map = {}
+            if semantics.operands and len(instruction.operands) >= len(semantics.operands):
+                for i, sem_op in enumerate(semantics.operands):
+                    operand_map[sem_op] = instruction.operands[i]
+            
+            # Replace semantic operands with actual operands
+            for sem_op, actual_op in operand_map.items():
+                dest = dest.replace(sem_op, actual_op)
+                expression = expression.replace(sem_op, actual_op)
+            
+            # Execute the operation dynamically
+            execute_bin_operation(expression, env)
+        
         return True
     except Exception as e:
         print(f"Error applying postcondition for {instruction.opcode}: {e}")

@@ -488,6 +488,30 @@ def sym_and(env, dest, source):
     BIN_AND(env, dest, source)
 
 
+def sym_movzx(env, source, dest):
+    """
+    Implementation of symbolic MOVZX (move with zero extend) operation
+
+    Args:
+        env: Symbolic environment
+        source: Source operand
+        dest: Destination operand
+    """
+    BIN_COPY(env, source, dest)
+
+
+def sym_movsxd(env, source, dest):
+    """
+    Implementation of symbolic MOVSXD (move with sign extend doubleword) operation
+
+    Args:
+        env: Symbolic environment
+        source: Source operand
+        dest: Destination operand
+    """
+    BIN_COPY(env, source, dest)
+
+
 def sym_xor(env, dest, source):
     """
     Implementation of symbolic XOR operation using basic operations
@@ -690,5 +714,7 @@ POSTCONDITION_MAP = {
     'jmp': sym_jmp,
     'syscall': sym_syscall,
     'endbr64': sym_endbr64,
-    'nop': sym_nop
+    'nop': sym_nop,
+    'movzx': sym_movzx,
+    'movsxd': sym_movsxd
 }
