@@ -101,7 +101,6 @@ class SymbolicEnvironment:
         if reg_name in self.REG_PARENT:
             parent = self.REG_PARENT[reg_name]
             parent_value = self.registers[parent]
-            size = self.REG_SIZES[reg_name]
 
             # Extract the appropriate bits based on the register name
             if reg_name.endswith('d'):  # 32-bit
