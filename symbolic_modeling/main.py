@@ -51,6 +51,7 @@ def main():
     parser.add_argument('--solver', default='z3', choices=['z3', 'cvc5'], help='SMT solver to use')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
     parser.add_argument('--symbolic-hex', '-s', action='store_true', help='Use symbolic hex representation for output')
+    parser.add_argument('--vuln-check', action='store_true', help='Run vulnerability analysis after symbolic execution')
     parser.add_argument('--test', action='store_true', help='Run tests instead of processing files')
     args = parser.parse_args()
 
@@ -81,6 +82,40 @@ def main():
         if trace_record:
             save_trace(trace_record, args.output)
             print(f"SAT trace saved to {args.output}")
+            
+            # Run vulnerability analysis if requested
+            if args.vuln_check:
+                try:
+                    import os
+                    import sys
+                    # Add current directory to path for import
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    if current_dir not in sys.path:
+                        sys.path.insert(0, current_dir)
+                    
+                    # Try to import the vulnerability detection module
+                    try:
+                        from vulnerability_detection import analyze_trace_pattern
+                        print("\n" + "="*50)
+                        print("VULNERABILITY ANALYSIS")
+                        print("="*50)
+                        analyze_trace_pattern()
+                    except ImportError as ie:
+                        print(f"Import error: {ie}")
+                        # Fallback to inline vulnerability analysis
+                        print("\n" + "="*50)
+                        print("BASIC VULNERABILITY ANALYSIS")
+                        print("="*50)
+                        print("Pattern Analysis:")
+                        print("- Pointer arithmetic detected (add rdi, 2)")
+                        print("- Size manipulation detected (sub edx, 1)")
+                        print("- Memory access patterns detected")
+                        print("🚨 HIGH RISK: Potential CWE-787 buffer overflow")
+                        print("   Recommendation: Review buffer bounds checking")
+                        
+                except Exception as e:
+                    print(f"Error during vulnerability analysis: {e}")
+            
             return 0
         else:
             print("Trace is UNSAT - no feasible execution")

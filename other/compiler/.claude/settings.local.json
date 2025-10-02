@@ -6,7 +6,14 @@
       "Bash(pkill:*)",
       "Bash(python3:*)",
       "Bash(grep:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(PYTHONPATH=../../symbolic_modeling python3 ../../symbolic_modeling/main.py ../../symbolic_modeling/data/assembly_trace.txt ../../symbolic_modeling/data/semantics.txt --verbose)",
+      "Bash(pip3 install:*)",
+      "Bash(pip3 list:*)",
+      "Bash(source:*)",
+      "Bash(PYTHONPATH=/Users/smander/projects/PHD/binary-algebra/symbolic_modeling python3 /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/main.py /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/data/assembly_trace.txt /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/data/semantics.txt --vuln-check)",
+      "Bash(PYTHONPATH=/Users/smander/projects/PHD/binary-algebra/symbolic_modeling python3 /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/test_vulnerability_detection.py)",
+      "Bash(PYTHONPATH=/Users/smander/projects/PHD/binary-algebra/symbolic_modeling python3 /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/main.py /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/data/assembly_trace.txt /Users/smander/projects/PHD/binary-algebra/symbolic_modeling/data/semantics.txt --verbose --vuln-check)"
     ],
     "deny": []
   }

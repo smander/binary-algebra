@@ -1162,6 +1162,152 @@ def save_slice(slice_equations, path_traces, template, equations, behaviors_by_i
                                 f.write(f"  #   {addr_hex}: {asm}\n")
                         f.write("\n")
 
+        # Create behavior-based full trace (always created)
+        full_trace_file = os.path.join(trace_dir, "full_trace.txt")
+        with open(full_trace_file, 'w') as f:
+            # Behavior-based full trace
+            f.write(f"# Full behavior trace from program start to vulnerability pattern\n")
+            f.write(f"# This shows the complete behavior execution path leading to the vulnerability\n\n")
+            
+            # Extract all addresses from behavior names and equations
+            all_behavior_addrs = set()
+            addr_to_behaviors = {}
+            
+            # Parse addresses from behavior names (like B(100000d71))
+            for behavior, rhs in equations.items():
+                # Extract address from behavior name
+                if behavior.startswith('B(') and behavior.endswith(')'):
+                    addr_str = behavior[2:-1]
+                    try:
+                        addr = int(addr_str, 16)
+                        all_behavior_addrs.add(addr)
+                        if addr not in addr_to_behaviors:
+                            addr_to_behaviors[addr] = []
+                        addr_to_behaviors[addr].append((behavior, rhs))
+                    except ValueError:
+                        pass
+                
+                # Also extract addresses from instructions in the RHS
+                instructions = parse_behavior_instructions(rhs)
+                for instr in instructions:
+                    try:
+                        addr_str = instr['address']
+                        if addr_str.startswith('0x'):
+                            addr = int(addr_str, 16)
+                        else:
+                            addr = int(addr_str, 16)
+                        all_behavior_addrs.add(addr)
+                    except (ValueError, KeyError):
+                        pass
+            
+            if all_behavior_addrs:
+                # Find the starting address (minimum address)
+                start_address = min(all_behavior_addrs)
+                
+                # Find addresses in current trace
+                trace_behavior_addrs = set()
+                trace_behaviors = set(path_trace.split(" -> "))
+                
+                for behavior in trace_behaviors:
+                    if behavior.startswith('B(') and behavior.endswith(')'):
+                        addr_str = behavior[2:-1]
+                        try:
+                            addr = int(addr_str, 16)
+                            trace_behavior_addrs.add(addr)
+                        except ValueError:
+                            pass
+                    
+                    # Also get addresses from instructions in trace behaviors
+                    if behavior in filtered_equations:
+                        instructions = parse_behavior_instructions(filtered_equations[behavior])
+                        for instr in instructions:
+                            try:
+                                addr_str = instr['address']
+                                if addr_str.startswith('0x'):
+                                    addr = int(addr_str, 16)
+                                else:
+                                    addr = int(addr_str, 16)
+                                trace_behavior_addrs.add(addr)
+                            except (ValueError, KeyError):
+                                pass
+                
+                # Find the last address in our trace
+                max_trace_addr = max(trace_behavior_addrs) if trace_behavior_addrs else start_address
+                
+                f.write(f"# Behavior trace from 0x{start_address:x} to 0x{max_trace_addr:x}\n\n")
+                
+                # Sort all addresses and show behaviors chronologically
+                sorted_addresses = sorted(all_behavior_addrs)
+                
+                for addr in sorted_addresses:
+                    if addr <= max_trace_addr:
+                        addr_hex = f"0x{addr:x}"
+                        # Check if this address is part of our trace
+                        is_in_trace = addr in trace_behavior_addrs
+                        marker = " <-- TRACE" if is_in_trace else ""
+                        
+                        # Show only behavior definitions at this address
+                        if addr in addr_to_behaviors:
+                            for behavior, rhs in addr_to_behaviors[addr]:
+                                f.write(f"{addr_hex}: {behavior} = {rhs}{marker}\n")
+        
+        print(f"  Created full trace at {full_trace_file}")
+
+        # If we have assembly mapping, create additional assembly-based full trace
+        if has_asm:
+            full_trace_asm_file = os.path.join(trace_dir, "full_trace_asm.txt")
+            with open(full_trace_asm_file, 'w') as f:
+                # Assembly-based full trace
+                # Find the start of the program by looking for the earliest address
+                all_addresses = set()
+                for behavior, rhs in equations.items():
+                    asm_instructions = convert_behavior_to_asm(rhs, asm_map)
+                    for addr, instr_type, asm in asm_instructions:
+                        if isinstance(addr, int):
+                            all_addresses.add(addr)
+                
+                if all_addresses:
+                    # Find the starting address (minimum address)
+                    start_address = min(all_addresses)
+                    
+                    # Create a mapping of addresses to behaviors for full trace reconstruction
+                    addr_to_behavior = {}
+                    for behavior, rhs in equations.items():
+                        asm_instructions = convert_behavior_to_asm(rhs, asm_map)
+                        for addr, instr_type, asm in asm_instructions:
+                            if isinstance(addr, int):
+                                if addr not in addr_to_behavior:
+                                    addr_to_behavior[addr] = []
+                                addr_to_behavior[addr].append((behavior, instr_type, asm))
+                    
+                    # Sort all addresses to create chronological execution order
+                    sorted_addresses = sorted(all_addresses)
+                    
+                    # Find the addresses that appear in our current trace
+                    trace_addresses = set()
+                    for behavior in path_trace.split(" -> "):
+                        if behavior in filtered_equations:
+                            asm_instructions = convert_behavior_to_asm(filtered_equations[behavior], asm_map)
+                            for addr, instr_type, asm in asm_instructions:
+                                if isinstance(addr, int):
+                                    trace_addresses.add(addr)
+                    
+                    # Find the last address in our trace to know where to stop
+                    max_trace_addr = max(trace_addresses) if trace_addresses else start_address
+                    
+                    f.write(f"# Full assembly execution trace from program start (0x{start_address:x}) to trace end (0x{max_trace_addr:x})\n")
+                    f.write(f"# This shows the complete assembly execution path leading to the vulnerability pattern\n\n")
+                    
+                    # Write full trace from start to the end of our trace
+                    for addr in sorted_addresses:
+                        if addr <= max_trace_addr:
+                            addr_hex = f"0x{addr:x}"
+                            if addr in addr_to_behavior:
+                                for behavior, instr_type, asm in addr_to_behavior[addr]:
+                                    f.write(f"{addr_hex}: {asm}\n")
+            
+            print(f"  Created assembly full trace at {full_trace_asm_file}")
+
         # If we have assembly mapping, create a pure assembly trace file
         if has_asm:
             asm_trace_file = os.path.join(trace_dir, "assembly_trace.txt")
