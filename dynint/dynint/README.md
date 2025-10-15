@@ -1,3 +1,4 @@
+
 # dynint
 
 `dynint` provides a two-mode toolkit for Linux ELF binaries:
@@ -106,13 +107,3 @@ The CLI is structured to accept future backends:
 3. Extended filtering: `--from-func`, `--lib-regex`, sliding-window sampling.
 4. Metrics & observability: Prometheus exporter for event rates, queue depth, drops.
 5. Additional forensic modes: `--sample-payload` to dump N bytes from pointer arguments.
-
-Contributions in these areas are welcome; the codebase is intentionally modular so backends can be added under `dynint/dyntrace/` with minimal churn.
-
-## Running on Colab
-
-Google Colab supports Python 3.10+, so you can install Frida and Capstone via `pip` inside the notebook and run the CLI using `!dynint ...`. Remember that Colab sessions do not permit attaching to arbitrary system processes—you will typically use the `--spawn` mode to run your own binaries.
-
-## License
-
-MIT — see `LICENSE` (add one that fits your project policies).

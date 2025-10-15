@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(PYTHONPATH=dynint python -m pytest tests/ -v)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose run:*)",
+      "Bash(docker compose:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(./run_tests.sh)",
+      "Bash(cat:*)",
+      "Bash(./run_tests.sh:*)"
+    ],
+    "deny": []
+  }
+}

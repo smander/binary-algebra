@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Optional, Tuple
 
 from elftools.elf.elffile import ELFFile
-from elftools.elf.sections import RelocationSection, SymbolTableSection
+from elftools.elf.sections import SymbolTableSection
+from elftools.elf.relocation import RelocationSection
 
 LOGGER = logging.getLogger(__name__)
 
